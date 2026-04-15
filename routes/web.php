@@ -39,10 +39,10 @@ Route::middleware('auth')->group(function () {
     
    
 
-   // 1. Change this to GET so you can actually visit the page in your browser
+   
     Route::get('/category/add', [CategoryController::class, 'add'])->name('category.add');
 
-    // 2. Keep your POST route (usually named 'store' or 'create') to handle the form submission
+    
     Route::post('/category/new', [CategoryController::class, 'create'])->name('category.create');
 
     Route::get('/category/manage', [CategoryController::class, 'manage'])->name('category.manage');
@@ -54,10 +54,10 @@ Route::middleware('auth')->group(function () {
 
 
     //sub-category routes
-    // 1. Change this to GET so you can actually visit the page in your browser
+    
     Route::get('/sub-category/add', [SubCategoryController::class, 'add'])->name('sub-category.add');
 
-    // 2. Keep your POST route (usually named 'store' or 'create') to handle the form submission
+  
     Route::post('/sub-category/new', [SubCategoryController::class, 'create'])->name('sub-category.create');
 
     Route::get('/sub-category/manage', [SubCategoryController::class, 'manage'])->name('sub-category.manage');
@@ -106,7 +106,7 @@ Route::middleware('auth')->group(function () {
 
    
     //chat routes
-    // Change 'admin.chat' to 'admin.chat.index'
+   
 Route::get('/admin/chat', [AdminChatController::class, 'index'])->name('admin.chat.index');
 
 
