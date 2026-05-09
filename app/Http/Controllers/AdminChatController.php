@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
 use App\Events\ChatMessageSent;
+use App\Models\Customer;
+use Carbon\Carbon;
 
 class AdminChatController extends Controller
 {
@@ -16,8 +18,26 @@ class AdminChatController extends Controller
             ->distinct()
             ->get()
             ->map(function ($msg) {
-                $latest = Message::where('from_id', $msg->from_id)
-                    ->orWhere('to_id', $msg->from_id)
+                $customer = Customer::find($msg->from_id);
+
+                // ✅ Skip guest sessions — only show registered customers
+                if (!$customer) return null;
+
+                $lastSeen = $customer->last_seen_at;
+
+                if ($lastSeen) {
+                    $lastSeenAt = Carbon::parse($lastSeen);
+                    $isActive   = $lastSeenAt->gt(now()->subMinutes(2));
+                    $status     = $isActive ? 'Active' : 'Active ' . $lastSeenAt->diffForHumans();
+                } else {
+                    $isActive = false;
+                    $status   = 'Offline';
+                }
+
+                $latest = Message::where(function ($q) use ($msg) {
+                        $q->where('from_id', $msg->from_id)
+                          ->orWhere('to_id', $msg->from_id);
+                    })
                     ->latest()
                     ->first();
 
@@ -26,12 +46,24 @@ class AdminChatController extends Controller
                     ->count();
 
                 return [
-                    'customer_id'    => $msg->from_id,
-                    'latest_message' => $latest->message,
-                    'latest_time'    => $latest->created_at->diffForHumans(),
-                    'unread_count'   => $unread,
+                    'customer_id'     => $msg->from_id,
+                    'customer_name'   => $customer->name,
+                    'customer_status' => $status,
+                    'is_active'       => $isActive,
+                    'latest_message'  => $latest?->message ?? '',
+                    'latest_time'     => $latest?->created_at->diffForHumans() ?? '',
+                    'unread_count'    => $unread,
+                    'last_message_at' => $latest?->created_at,
                 ];
-            });
+            })
+            // ✅ Remove nulls (guests)
+            ->filter()
+            // ✅ Deduplicate by customer_id — keep one entry per customer
+            ->groupBy('customer_id')
+            ->map(fn($group) => $group->sortByDesc('last_message_at')->first())
+            // ✅ Sort: active customers first, then by most recent message
+            ->sortByDesc(fn($c) => [$c['is_active'] ? 1 : 0, $c['last_message_at']])
+            ->values();
 
         $admin = User::where('role', 'admin')->first();
 
@@ -65,35 +97,55 @@ class AdminChatController extends Controller
         return response()->json(['messages' => $messages]);
     }
 
-  public function sendMessage(Request $request)
-{
-    $request->validate([
-        'message'     => 'required|string|max:500',
-        'customer_id' => 'required',
-    ]);
+    public function sendMessage(Request $request)
+    {
+        $request->validate([
+            'message'     => 'required|string|max:500',
+            'customer_id' => 'required',
+        ]);
 
-    $admin = User::where('role', 'admin')->first();
+        $admin = User::where('role', 'admin')->first();
 
-    $message            = new Message();
-    $message->from_id   = $admin->id;
-    $message->to_id     = $request->customer_id;
-    $message->from_type = 'admin';
-    $message->message   = $request->message;
-    $message->save();
+        $message            = new Message();
+        $message->from_id   = $admin->id;
+        $message->to_id     = $request->customer_id;
+        $message->from_type = 'admin';
+        $message->message   = $request->message;
+        $message->save();
 
-    // ✅ This was missing — broadcasts to customer's widget in real time
-    broadcast(new ChatMessageSent(
-        message:     $message->message,
-        sender:      'admin',
-        created_at:  $message->created_at->toISOString(),
-        customer_id: $request->customer_id
-    ));
+        broadcast(new ChatMessageSent(
+            message:     $message->message,
+            sender:      'admin',
+            created_at:  $message->created_at->toISOString(),
+            customer_id: $request->customer_id
+        ));
 
-    return response()->json([
-        'status'      => 'success',
-        'message'     => $message->message,
-        'created_at'  => $message->created_at->toISOString(),
-        'customer_id' => $request->customer_id,
-    ]);
-}
+        return response()->json([
+            'status'      => 'success',
+            'message'     => $message->message,
+            'created_at'  => $message->created_at->toISOString(),
+            'customer_id' => $request->customer_id,
+        ]);
+    }
+
+    public function getCustomer($id)
+    {
+        $customer = Customer::find($id);
+        $lastSeen = $customer?->last_seen_at;
+
+        if ($lastSeen) {
+            $lastSeenAt = Carbon::parse($lastSeen);
+            $isActive   = $lastSeenAt->gt(now()->subMinutes(2));
+            $status     = $isActive ? 'Active' : 'Active ' . $lastSeenAt->diffForHumans();
+        } else {
+            $status   = 'Offline';
+            $isActive = false;
+        }
+
+        return response()->json([
+            'name'      => $customer?->name ?? 'Customer ' . substr($id, -6),
+            'status'    => $status,
+            'is_active' => $isActive,
+        ]);
+    }
 }

@@ -25,6 +25,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'customer' => \App\Http\Middleware\CustomerMiddleware::class,
         ]);
     })
+    // bootstrap/app.php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->web(append: [
+        \App\Http\Middleware\UpdateCustomerLastSeen::class,
+    ]);
+})
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();  

@@ -133,6 +133,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/chat', [AdminChatController::class, 'index'])->name('admin.chat.index');
     Route::get('/admin/chat/messages/{customerId}', [AdminChatController::class, 'getMessages'])->name('admin.chat.messages');
     Route::post('/admin/chat/send', [AdminChatController::class, 'sendMessage'])->name('admin.chat.send');
+    // routes/web.php
+    Route::get('/admin/chat/customer/{id}', [AdminChatController::class, 'getCustomer']);
 
 });
 

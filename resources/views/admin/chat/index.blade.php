@@ -48,12 +48,28 @@
             @forelse($conversations as $conv)
             <div class="conversation-item"
                  data-customer-id="{{ $conv['customer_id'] }}"
+                 data-customer-name="{{ $conv['customer_name'] }}"
+                 data-customer-status="{{ $conv['customer_status'] }}"
+                 data-is-active="{{ $conv['is_active'] ? 'true' : 'false' }}"
                  onclick="loadConversation('{{ $conv['customer_id'] }}', this)">
-                <div class="conv-avatar">{{ strtoupper(substr($conv['customer_id'], 0, 2)) }}</div>
+
+                {{-- Avatar with online indicator --}}
+                <div style="position:relative;flex-shrink:0;">
+                    <div class="conv-avatar">{{ strtoupper(substr($conv['customer_name'], 0, 2)) }}</div>
+                    @if($conv['is_active'])
+                        <span style="position:absolute;bottom:1px;right:1px;width:9px;height:9px;border-radius:50%;background:#22c55e;border:2px solid #fff;"></span>
+                    @endif
+                </div>
+
                 <div class="conv-info">
-                    <div class="conv-name">Customer {{ substr($conv['customer_id'], -6) }}</div>
+                    <div class="conv-name">{{ $conv['customer_name'] }}</div>
+                    {{-- Show status under name instead of last message preview --}}
+                    <div class="conv-preview" style="color:{{ $conv['is_active'] ? '#22c55e' : '#94a3b8' }};">
+                        {{ $conv['customer_status'] }}
+                    </div>
                     <div class="conv-preview">{{ Str::limit($conv['latest_message'], 30) }}</div>
                 </div>
+
                 <div class="conv-meta">
                     <div class="conv-time">{{ $conv['latest_time'] }}</div>
                     @if($conv['unread_count'] > 0)
@@ -105,32 +121,71 @@
 
     chatChannel = pusher.subscribe('chat');
 
-chatChannel.bind('message.sent', function(data) {
-    console.log('Event received:', data);
+    chatChannel.bind('message.sent', function(data) {
+        console.log('Event received:', data);
 
-    if (data.sender === 'customer') {
-        if (data.customer_id === currentCustomerId) {
-            // ✅ Append incoming customer message to open chat
-            appendMessage(data.message, 'customer', data.created_at);
-        } else {
-            // ✅ Update badge + preview for other conversations
-            updateBadge(data.customer_id);
-            updateConversationPreview(data.customer_id, data.message);
+        if (data.sender === 'customer') {
+            if (data.customer_id == currentCustomerId) {
+                appendMessage(data.message, 'customer', data.created_at);
+            } else {
+                updateBadge(data.customer_id);
+                updateConversationPreview(data.customer_id, data.message);
+            }
+        } else if (data.sender === 'admin') {
+            if (data.customer_id == currentCustomerId) {
+                updateConversationPreview(data.customer_id, data.message);
+            }
         }
+    });
 
-    } else if (data.sender === 'admin') {
-        // ✅ Another admin tab sent a message — sync it here
-        if (data.customer_id === currentCustomerId) {
-            // Only append if NOT already shown (avoid duplicate from optimistic render)
-            // We skip appending here since sendAdminMessage() already called appendMessage()
-            // But update the preview for the sidebar
-            updateConversationPreview(data.customer_id, data.message);
+    // ── Render just the header (used twice: cached + live) ────
+    function renderChatHeader(customerName, customerStatus, isActive) {
+        var headerHtml =
+            '<div id="chatMainHeader" class="chat-main-header">' +
+                '<div style="position:relative;">' +
+                    '<div class="chat-main-avatar">' + customerName.substring(0, 2).toUpperCase() + '</div>' +
+                    (isActive
+                        ? '<span style="position:absolute;bottom:1px;right:1px;width:8px;height:8px;border-radius:50%;background:#22c55e;border:2px solid #f8fafc;"></span>'
+                        : '') +
+                '</div>' +
+                '<div>' +
+                    '<div class="chat-main-name">' + escapeHtml(customerName) + '</div>' +
+                    '<div class="chat-main-status" style="color:' + (isActive ? '#22c55e' : '#94a3b8') + '">' +
+                        customerStatus +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+
+        var existingHeader = document.getElementById('chatMainHeader');
+        if (existingHeader) {
+            // ✅ Header already exists — only swap it, keep messages intact
+            existingHeader.outerHTML = headerHtml;
+        } else {
+            // ✅ First render — build the full chat layout
+            document.getElementById('chatMain').innerHTML =
+                headerHtml +
+                '<div class="chat-messages" id="chatMessages">' +
+                    '<div style="text-align:center;color:#94a3b8;font-size:12px;padding:20px;">Loading messages...</div>' +
+                '</div>' +
+                '<div class="chat-footer" id="chatFooter">' +
+                    '<input class="chat-input" id="adminChatInput" type="text" placeholder="Type a reply..." />' +
+                    '<button class="chat-send-btn" onclick="sendAdminMessage()">' +
+                        '<svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>' +
+                    '</button>' +
+                '</div>';
+
+            document.getElementById('adminChatInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') sendAdminMessage();
+            });
         }
     }
-});
 
+    // ── Load a conversation ───────────────────────────────────
     function loadConversation(customerId, el) {
-        currentCustomerId = customerId;
+        currentCustomerId  = customerId;
+        var customerName   = el.dataset.customerName   || 'Customer';
+        var customerStatus = el.dataset.customerStatus || 'Offline';
+        var isActive       = el.dataset.isActive === 'true';
 
         document.querySelectorAll('.conversation-item').forEach(function(i) {
             i.classList.remove('active');
@@ -140,33 +195,26 @@ chatChannel.bind('message.sent', function(data) {
         var badge = document.getElementById('badge-' + customerId);
         if (badge) badge.remove();
 
-        document.getElementById('chatMain').innerHTML =
-            '<div class="chat-main-header">' +
-                '<div class="chat-main-avatar">C</div>' +
-                '<div>' +
-                    '<div class="chat-main-name">Customer ' + customerId.slice(-6) + '</div>' +
-                    '<div class="chat-main-status">Active</div>' +
-                '</div>' +
-            '</div>' +
-            '<div class="chat-messages" id="chatMessages">' +
-                '<div style="text-align:center;color:#94a3b8;font-size:12px;padding:20px;">Loading messages...</div>' +
-            '</div>' +
-            '<div class="chat-footer">' +
-                '<input class="chat-input" id="adminChatInput" type="text" placeholder="Type a reply..." />' +
-                '<button class="chat-send-btn" onclick="sendAdminMessage()">' +
-                    '<svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>' +
-                '</button>' +
-            '</div>';
+        // ✅ Step 1: Render instantly with cached status (no blank flash)
+        renderChatHeader(customerName, customerStatus, isActive);
 
-        document.getElementById('adminChatInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') sendAdminMessage();
-        });
+        // ✅ Step 2: Fetch LIVE status in background and update header
+        fetch('/admin/chat/customer/' + customerId, {
+            headers: { 'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            // Update sidebar data attributes so re-clicking is also fresh
+            el.dataset.customerStatus = data.status;
+            el.dataset.isActive       = data.is_active ? 'true' : 'false';
+            // Re-render header with live data
+            renderChatHeader(data.name, data.status, data.is_active);
+        })
+        .catch(function() {}); // silently fail — cached status stays
 
+        // ✅ Step 3: Load messages
         fetch('/admin/chat/messages/' + customerId, {
-            headers: {
-                'X-CSRF-TOKEN': CSRF_TOKEN,
-                'Accept':       'application/json'
-            }
+            headers: { 'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json' }
         })
         .then(function(r) {
             if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -192,35 +240,34 @@ chatChannel.bind('message.sent', function(data) {
         });
     }
 
-  function sendAdminMessage() {
-    var input = document.getElementById('adminChatInput');
-    var text  = input.value.trim();
-    if (!text || !currentCustomerId) return;
+    // ── Admin sends a message ─────────────────────────────────
+    function sendAdminMessage() {
+        var input = document.getElementById('adminChatInput');
+        var text  = input.value.trim();
+        if (!text || !currentCustomerId) return;
 
-    input.value = '';
-    appendMessage(text, 'admin', new Date().toISOString());
-    updateConversationPreview(currentCustomerId, text); // ✅ add this line
+        input.value = '';
+        appendMessage(text, 'admin', new Date().toISOString());
+        updateConversationPreview(currentCustomerId, text);
 
-    fetch('/admin/chat/send', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': CSRF_TOKEN,
-            'Accept':       'application/json'
-        },
-        body: JSON.stringify({
-            message:     text,
-            customer_id: currentCustomerId
+        fetch('/admin/chat/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': CSRF_TOKEN,
+                'Accept':       'application/json'
+            },
+            body: JSON.stringify({
+                message:     text,
+                customer_id: currentCustomerId
+            })
         })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) { console.log('Reply sent:', data); })
-    .catch(function(err) {
-        console.error('Send error:', err);
-        // ❌ Optionally remove the optimistically added message on failure
-    });
-}
+        .then(function(r) { return r.json(); })
+        .then(function(data) { console.log('Reply sent:', data); })
+        .catch(function(err) { console.error('Send error:', err); });
+    }
 
+    // ── Helpers ───────────────────────────────────────────────
     function appendMessage(text, fromType, isoTime) {
         var container = document.getElementById('chatMessages');
         if (!container) return;
@@ -229,7 +276,7 @@ chatChannel.bind('message.sent', function(data) {
         var time     = isoTime ? timeAgo(isoTime) : 'Just now';
         var initials = isAdmin ? 'AD' : 'C';
 
-        var div     = document.createElement('div');
+        var div = document.createElement('div');
         div.className = 'msg' + (isAdmin ? ' admin' : '');
         div.innerHTML =
             '<div class="msg-avatar">' + initials + '</div>' +

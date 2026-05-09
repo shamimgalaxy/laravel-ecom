@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Message;
+use App\Models\Customer;
 use App\Events\ChatMessageSent;
 use Illuminate\Support\Facades\Session;
 
@@ -28,24 +29,26 @@ class ChatController extends Controller
             'receiver_id' => 'required|integer|exists:users,id',
         ]);
 
-        // Generate or reuse guest session ID
+        // Reuse session ID or generate guest fallback
         $customerId = Session::get('customer_id');
         if (!$customerId) {
             $customerId = 'guest_' . uniqid();
             Session::put('customer_id', $customerId);
         }
+        $customerId = (string) $customerId;
 
-        // FIX: cast receiver_id to string so both sides of the query
-        // use the same type — avoids MySQL type mismatch 500 error
+        // ✅ Update last_seen_at for registered customers
+        if (is_numeric($customerId)) {
+            Customer::where('id', $customerId)->update(['last_seen_at' => now()]);
+        }
+
         $message            = new Message();
-        $message->from_id   = (string) $customerId;
+        $message->from_id   = $customerId;
         $message->to_id     = (string) $request->receiver_id;
         $message->from_type = 'customer';
         $message->message   = $request->message;
         $message->save();
 
-        // Broadcast on BOTH 'chat' channel (admin panel) and
-        // 'customer-{id}' channel (widget) — event handles this
         broadcast(new ChatMessageSent(
             message:     $message->message,
             sender:      'customer',
@@ -62,9 +65,6 @@ class ChatController extends Controller
     }
 
     // ── Admin sends a reply ───────────────────────────────────
-    // FIX: this method was missing a broadcast — admin replies never
-    // reached the customer widget. Now it broadcasts with sender='admin'
-    // on the customer-{id} channel so the widget receives it.
     public function adminReply(Request $request)
     {
         $request->validate([
@@ -81,8 +81,6 @@ class ChatController extends Controller
         $message->message   = $request->message;
         $message->save();
 
-        // Broadcast on customer-{id} so the widget receives it,
-        // and on 'chat' so other admin tabs stay in sync
         broadcast(new ChatMessageSent(
             message:     $message->message,
             sender:      'admin',
@@ -104,8 +102,11 @@ class ChatController extends Controller
         $customerId = Session::get('customer_id');
         $adminId    = (string) $request->receiver_id;
 
-        // FIX: cast both sides to string so MySQL doesn't 500 on
-        // comparing varchar guest_xxx with int column values
+        // ✅ Update last_seen_at when customer loads chat history
+        if ($customerId && is_numeric($customerId)) {
+            Customer::where('id', $customerId)->update(['last_seen_at' => now()]);
+        }
+
         $messages = Message::where(function ($q) use ($customerId, $adminId) {
                         $q->where('from_id', (string) $customerId)
                           ->where('to_id', $adminId);
@@ -129,9 +130,15 @@ class ChatController extends Controller
         return response()->json(['messages' => $messages]);
     }
 
+    // ── Chat support page ─────────────────────────────────────
     public function chatSupport()
     {
         $customerId = Session::get('customer_id');
+
+        // ✅ Update last_seen_at when customer opens the chat page
+        if ($customerId && is_numeric($customerId)) {
+            Customer::where('id', $customerId)->update(['last_seen_at' => now()]);
+        }
 
         $messages = Message::where(function ($q) use ($customerId) {
                         $q->where('from_id', (string) $customerId)
