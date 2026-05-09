@@ -32,5 +32,11 @@
                 {{ $slot }}
             </main>
         </div>
+
+        {{-- Pusher JS --}}
+<script src="https://js.pusher.com/8.4/pusher.min.js"></script>
+
+{{-- Chat Widget --}}
+@include('partials.chat-widget')
     </body>
 </html>

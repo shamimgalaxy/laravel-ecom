@@ -55,7 +55,7 @@
 <div class="col-lg-4 col-md-4 col-12">
 <div class="top-middle">
 <ul class="useful-links">
-<li><a href="index.html">Home</a></li>
+<li><a href="{{ route('home') }}">Home</a></li>
 <li><a href="about-us.html">About Us</a></li>
 <li><a href="contact.html">Contact Us</a></li>
 </ul>
@@ -147,48 +147,7 @@
 <span class="total-items">0</span>
 </a>
 </div>
-<div style="
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    width: 60px;
-    height: 60px;
-    background-color: #25D366; /* WhatsApp Green style */
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    cursor: pointer;
-    z-index: 9999;
-    transition: all 0.3s ease;
-    user-select: none;
-" 
-onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#128C7E';"
-onmouseout="this.style.transform='scale(1.0)'; this.style.backgroundColor='#25D366';">
 
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M21 11.5C21 15.6421 17.1941 19 12.5 19C11.3973 19 10.3547 18.788 9.41406 18.4023L5 20L6.07031 16.2422C4.16406 14.9766 3 13.3438 3 11.5C3 7.35786 6.80589 4 11.5 4C16.1941 4 20 7.35786 20 11.5Z" 
-              stroke="white" 
-              stroke-width="2" 
-              stroke-linecap="round" 
-              stroke-linejoin="round"/>
-        <path d="M8 10H8.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M12 10H12.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M16 10H16.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-
-    <div style="
-        position: absolute;
-        top: 2px;
-        right: 2px;
-        width: 14px;
-        height: 14px;
-        background-color: #ff3b30;
-        border: 2px solid white;
-        border-radius: 50%;
-    "></div>
-</div>
 <div class="cart-items">
 <a href="javascript:void(0)" class="main-btn">
 <i class="lni lni-cart"></i>

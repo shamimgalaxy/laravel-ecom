@@ -6,88 +6,116 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Elite Admin - Dashboard</title>
-    
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('admin/assets/images/favicon.png')}}">
 
-    <link href="{{asset('admin/assets/node_modules/dropify/dist/css/dropify.min.css')}}" rel="stylesheet">
-    <link href="{{asset('admin/assets/node_modules/morrisjs/morris.css')}}" rel="stylesheet">
-    <link href="{{asset('admin/assets/node_modules/toast-master/css/jquery.toast.css')}}" rel="stylesheet">
-    <link href="{{asset('admin/assets/node_modules/summernote/dist/summernote-bs4.css')}}" rel="stylesheet">
-    <link href="{{asset('admin/assets/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css')}}" rel="stylesheet">
-    <link href="{{asset('admin/assets/node_modules/datatables.net-bs4/css/responsive.dataTables.min.css')}}" rel="stylesheet">
-    
-    <link href="{{asset('admin/dist/css/style.min.css')}}" rel="stylesheet">
-    <link href="{{asset('admin/dist/css/pages/dashboard1.css')}}" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('admin/assets/images/favicon.png') }}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.9.0/css/dropify.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs4.min.css">
+
+    <link href="{{ asset('admin/dist/css/style.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('admin/dist/css/pages/dashboard1.css') }}" rel="stylesheet">
+
+    @stack('styles')
 </head>
 
 <body class="skin-blue fixed-layout">
-    
+
     <div class="preloader">
         <div class="loader">
             <div class="loader__figure"></div>
             <p class="loader__label">Elite admin</p>
         </div>
     </div>
-   
+
     <div id="main-wrapper">
         @include('admin.includes.header')
         @include('admin.includes.sidebar')
-       
+
         <div class="page-wrapper">
             <div class="container-fluid">
                 @yield('body')
             </div>
         </div>
-        
+
         <footer class="footer">
-            © {{ date('Y') }} Developed by Shamim Ahmed Shuvo
+            &copy; {{ date('Y') }} Developed by Shamim Ahmed Shuvo
         </footer>
     </div>
 
-    <script src="{{ asset('admin/assets/node_modules/jquery/dist/jquery.min.js')}}"></script>
-    <script src="{{ asset('admin/assets/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js')}}"></script>
-    <script src="{{ asset('admin/dist/js/perfect-scrollbar.jquery.min.js')}}"></script>
-    <script src="{{ asset('admin/dist/js/waves.js')}}"></script>
-    <script src="{{ asset('admin/dist/js/sidebarmenu.js')}}"></script>
-    <script src="{{ asset('admin/dist/js/custom.min.js')}}"></script>
+    {{-- jQuery first --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-    <script src="{{ asset('admin/assets/node_modules/raphael/raphael-min.js')}}"></script>
-    <script src="{{ asset('admin/assets/node_modules/morrisjs/morris.min.js')}}"></script>
-    <script src="{{ asset('admin/assets/node_modules/toast-master/js/jquery.toast.js')}}"></script>
-    <script src="{{ asset('admin/assets/node_modules/dropify/dist/js/dropify.min.js')}}"></script>
-    
-    <script src="{{ asset('admin/assets/node_modules/datatables.net/js/jquery.dataTables.min.js')}}"></script>
-    <script src="{{ asset('admin/assets/node_modules/datatables.net-bs4/js/dataTables.responsive.min.js')}}"></script>
-    <script src="{{ asset('admin/assets/node_modules/summernote/dist/summernote-bs4.min.js')}}"></script>
+    {{-- Bootstrap --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
+
+    {{-- Admin theme scripts --}}
+    <script src="{{ asset('admin/dist/js/perfect-scrollbar.jquery.min.js') }}"></script>
+    <script src="{{ asset('admin/dist/js/waves.js') }}"></script>
+    <script src="{{ asset('admin/dist/js/sidebarmenu.js') }}"></script>
+    <script src="{{ asset('admin/dist/js/custom.min.js') }}"></script>
+
+    {{-- Raphael + Morris --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+
+    {{-- jQuery Toast --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
+
+    {{-- Dropify --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.9.0/js/dropify.min.js"></script>
+
+    {{-- DataTables --}}
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+    {{-- Summernote --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs4.min.js"></script>
+
+    {{-- ✅ Pusher — direct CDN, no local fallback --}}
+    <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
 
     <script>
-        $(document).ready(function() {
-            // 1. Initialize Summernote
-            $('.summernote').summernote({
-                height: 350,
-                focus: false 
-            });
+        $(document).ready(function () {
 
-            // 2. Initialize Dropify
-            $('.dropify').dropify();
+            if ($('.summernote').length) {
+                $('.summernote').summernote({
+                    height: 350,
+                    focus:  false
+                });
+            }
 
-            // 3. Initialize DataTable
-            $('#myTable').DataTable();
+            if ($('.dropify').length) {
+                $('.dropify').dropify();
+            }
 
-            // 4. Dynamic Subcategory Ajax
-            $('#categoryId').on('change', function() {
+            if ($('#myTable').length) {
+                $('#myTable').DataTable({
+                    responsive: true
+                });
+            }
+
+            $('#categoryId').on('change', function () {
                 var categoryId = $(this).val();
                 if (categoryId) {
                     $.ajax({
-                        url: "{{ route('product.get-subcategory-by-category') }}",
+                        url:  "{{ route('product.get-subcategory-by-category') }}",
                         type: "GET",
                         data: { category_id: categoryId },
-                        success: function(data) {
+                        success: function (data) {
                             $('#subCategoryId').empty();
                             $('#subCategoryId').append('<option value="" disabled selected>--- Select Sub Category ---</option>');
-                            $.each(data, function(key, value) {
+                            $.each(data, function (key, value) {
                                 $('#subCategoryId').append('<option value="' + value.id + '">' + value.name + '</option>');
                             });
+                        },
+                        error: function () {
+                            console.error('Failed to load subcategories.');
                         }
                     });
                 } else {
@@ -95,9 +123,12 @@
                     $('#subCategoryId').append('<option value="" disabled selected>--- Select Sub Category ---</option>');
                 }
             });
-});
+
+        });
     </script>
-</body>
-</html>
+
+    {{-- ✅ Page-specific scripts load AFTER Pusher is ready --}}
+    @stack('scripts')
+
 </body>
 </html>

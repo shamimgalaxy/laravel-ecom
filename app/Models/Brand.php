@@ -9,7 +9,7 @@ class Brand extends Model
 {
     use HasFactory;
 
-    // Added 'brand_id' here if it actually exists in your migration
+   
     protected $fillable = [ 'name', 'description', 'image', 'status'];
 
     public static function getImageUrl($request) {
@@ -17,7 +17,6 @@ class Brand extends Model
         if ($image) {
             $imageName = time() . '_' . $image->getClientOriginalName();
             $directory = 'upload/brand-images/';
-            // Ensure the directory exists in the public folder
             $image->move(public_path($directory), $imageName); 
             return $directory . $imageName; 
         }
@@ -26,7 +25,7 @@ class Brand extends Model
 
     public static function newBrand($request) {
         $brand = new self();
-        // Only keep this line if 'brand_id' exists in your database table!
+        
         $brand->name        = $request->name;
         $brand->description = $request->description;
         $brand->image       = self::getImageUrl($request);
@@ -37,7 +36,7 @@ class Brand extends Model
     public static function updatedBrand($request, $id) {
         $brand = self::findOrFail($id);
         
-        $imageUrl = $brand->image; // Default to old image
+        $imageUrl = $brand->image; 
         if ($request->hasFile('image')) {
             if ($brand->image && file_exists(public_path($brand->image))) {
                 unlink(public_path($brand->image));
@@ -54,5 +53,5 @@ class Brand extends Model
         ]);
     }
 
-    // ... deleteBrand logic is fine as is
+    
 }

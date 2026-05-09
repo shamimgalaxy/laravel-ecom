@@ -37,7 +37,7 @@ customer dashboard
                             <a href="" class="list-group-item list-group-item-action">Account</a>
                             <a href="#" class="list-group-item list-group-item-action">Change Password</a>
                             <a href="#" class="list-group-item list-group-item-action">Logout</a>
-                            <a href="{{ route('customer.chat-support') }}" class="list-group-item list-group-item-action">Chat Support</a>
+                            
                             <a href="#" class="list-group-item list-group-item-action disabled" aria-disabled="true">A disabled link item</a>
                             </div>
              

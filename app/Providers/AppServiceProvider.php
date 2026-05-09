@@ -6,6 +6,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use View;
 use App\Models\Category;
+use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,6 +33,10 @@ class AppServiceProvider extends ServiceProvider
         ], function($view){
             $view->with('categories', Category::all());  
         });
+
+        View::composer('partials.chat-widget', function ($view) {
+        $view->with('adminUser', User::where('role', 'admin')->first());
+    });
 
         //end function
     }

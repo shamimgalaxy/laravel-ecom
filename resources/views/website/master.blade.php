@@ -20,6 +20,12 @@
 
 
 @include('website.includes.script')
+
+{{-- Pusher JS --}}
+<script src="https://js.pusher.com/8.4/pusher.min.js"></script>
+
+{{-- Live Chat Widget --}}
+@include('partials.chat-widget')
 </body>
 
 
