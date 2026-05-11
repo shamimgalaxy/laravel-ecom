@@ -18,51 +18,51 @@ class ChatController extends Controller
     }
 
     // ── Customer sends a message ──────────────────────────────
-    public function sendMessage(Request $request)
-    {
-        if ($request->isJson()) {
-            $request->merge($request->json()->all());
-        }
-
-        $request->validate([
-            'message'     => 'required|string',
-            'receiver_id' => 'required|integer|exists:users,id',
-        ]);
-
-        // Reuse session ID or generate guest fallback
-        $customerId = Session::get('customer_id');
-        if (!$customerId) {
-            $customerId = 'guest_' . uniqid();
-            Session::put('customer_id', $customerId);
-        }
-        $customerId = (string) $customerId;
-
-        // ✅ Update last_seen_at for registered customers
-        if (is_numeric($customerId)) {
-            Customer::where('id', $customerId)->update(['last_seen_at' => now()]);
-        }
-
-        $message            = new Message();
-        $message->from_id   = $customerId;
-        $message->to_id     = (string) $request->receiver_id;
-        $message->from_type = 'customer';
-        $message->message   = $request->message;
-        $message->save();
-
-        broadcast(new ChatMessageSent(
-            message:     $message->message,
-            sender:      'customer',
-            created_at:  $message->created_at->toISOString(),
-            customer_id: $customerId
-        ))->toOthers();
-
-        return response()->json([
-            'status'      => 'success',
-            'message'     => $message->message,
-            'created_at'  => $message->created_at->toISOString(),
-            'customer_id' => $customerId,
-        ]);
+   // ── Customer sends a message ──────────────────────────────
+public function sendMessage(Request $request)
+{
+    if ($request->isJson()) {
+        $request->merge($request->json()->all());
     }
+
+    $request->validate([
+        'message'     => 'required|string',
+        'receiver_id' => 'required|integer|exists:users,id',
+    ]);
+
+    $customerId = Session::get('customer_id');
+    if (!$customerId) {
+        $customerId = 'guest_' . uniqid();
+        Session::put('customer_id', $customerId);
+    }
+    $customerId = (string) $customerId;
+
+    if (is_numeric($customerId)) {
+        Customer::where('id', $customerId)->update(['last_seen_at' => now()]);
+    }
+
+    $message            = new Message();
+    $message->from_id   = $customerId;
+    $message->to_id     = (string) $request->receiver_id;
+    $message->from_type = 'customer';
+    $message->message   = $request->message;
+    $message->save();
+
+    // ↓ CHANGED: removed ->toOthers() — requires Laravel Auth user
+    broadcast(new ChatMessageSent(
+        message:     $message->message,
+        sender:      'customer',
+        created_at:  $message->created_at->toISOString(),
+        customer_id: $customerId
+    ));
+
+    return response()->json([
+        'status'      => 'success',
+        'message'     => $message->message,
+        'created_at'  => $message->created_at->toISOString(),
+        'customer_id' => $customerId,
+    ]);
+}
 
     // ── Admin sends a reply ───────────────────────────────────
     public function adminReply(Request $request)
@@ -81,12 +81,13 @@ class ChatController extends Controller
         $message->message   = $request->message;
         $message->save();
 
-        broadcast(new ChatMessageSent(
-            message:     $message->message,
-            sender:      'admin',
-            created_at:  $message->created_at->toISOString(),
-            customer_id: $request->customer_id
-        ))->toOthers();
+       // ↓ CHANGED: removed ->toOthers()
+broadcast(new ChatMessageSent(
+    message:     $message->message,
+    sender:      'admin',
+    created_at:  $message->created_at->toISOString(),
+    customer_id: $request->customer_id
+));
 
         return response()->json([
             'status'      => 'success',

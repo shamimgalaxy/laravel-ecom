@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -25,24 +25,22 @@ class ChatMessageSent implements ShouldBroadcast
         $this->customer_id = $customer_id;
     }
 
-    public function broadcastOn(): array
-    {
-        $channels = [new Channel('chat')];
+public function broadcastOn(): array
+{
+    $channels = [
+        new \Illuminate\Broadcasting\Channel('chat'), // ← admin listens here
+    ];
 
-        if ($this->customer_id) {
-            $channels[] = new Channel('customer-' . $this->customer_id);
-        }
-
-        return $channels;
+    if ($this->customer_id) {
+        $channels[] = new PrivateChannel('customer-' . $this->customer_id); // ← customer listens here
     }
 
-    // FIX: removed broadcastAs() entirely so Pusher uses the default
-    // event name "App\Events\ChatMessageSent" — OR keep it but fix
-    // the client-side listener to use '.message.sent' (with dot prefix).
-    // Easiest fix: keep broadcastAs() but rename to avoid dot confusion.
+    return $channels;
+}
+
     public function broadcastAs(): string
     {
-        return 'message.sent'; // client MUST listen as '.message.sent'
+        return 'message.sent';
     }
 
     public function broadcastWith(): array

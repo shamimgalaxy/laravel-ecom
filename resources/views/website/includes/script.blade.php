@@ -1,93 +1,126 @@
-<script src="{{ asset('website/assets/js/bootstrap.min.js')}}"></script>
-<script src="{{ asset('website/assets/js/tiny-slider.js')}}"></script>
-<script src="{{ asset('website/assets/js/glightbox.min.js')}}"></script>
-<script src="{{ asset('website/assets/js/main.js')}}"></script>
-<script src="{{ asset('website/assets/js/bootstrap.bundle.min2.js')}}"></script>
+{{--
+    SCRIPT LOAD ORDER (critical):
+    1. jQuery           — everything depends on this
+    2. Bootstrap bundle — needs jQuery
+    3. tiny-slider      — standalone, no jQuery needed
+    4. glightbox        — standalone
+    5. xzoom            — needs jQuery
+    6. main.js          — needs jQuery + plugins
+    7. Inline inits     — run after all above are loaded
+--}}
+
+{{-- 1. jQuery (must be first) --}}
 <script src="{{ asset('website/assets/js/jquery-3.6.0.min2.js')}}"></script>
+
+{{-- 2. Bootstrap bundle (needs jQuery) --}}
+<script src="{{ asset('website/assets/js/bootstrap.bundle.min2.js')}}"></script>
+<script src="{{ asset('website/assets/js/bootstrap.min.js')}}"></script>
+
+{{-- 3. Tiny Slider --}}
+<script src="{{ asset('website/assets/js/tiny-slider.js')}}"></script>
+
+{{-- 4. GLightbox --}}
+<script src="{{ asset('website/assets/js/glightbox.min.js')}}"></script>
+
+{{-- 5. xZoom (needs jQuery) --}}
 <script src="{{ asset('website/assets/js/xzoom.min2.js')}}"></script>
 
+{{-- 6. Main JS --}}
+<script src="{{ asset('website/assets/js/main.js')}}"></script>
+
+{{-- 7. Inline initializations --}}
 <script>
-    $(document).ready(function() {
+$(document).ready(function () {
+
+    // ── xZoom (product image zoom) ──────────────────────────
+    if ($("#xzoom-default").length) {
         $("#xzoom-default").xzoom({
             position: 'right',
             lens: true,
             Xoffset: 15
         });
-    });
+    }
+
+    // ── Hero Slider ─────────────────────────────────────────
+    // Guard: only init if .hero-slider exists on this page
+    if (document.querySelector('.hero-slider')) {
+        tns({
+            container: '.hero-slider',
+            slideBy: 'page',
+            autoplay: true,
+            autoplayButtonOutput: false,
+            mouseDrag: true,
+            gutter: 0,
+            items: 1,
+            nav: false,
+            controls: true,
+            controlsText: [
+                '<i class="lni lni-chevron-left"></i>',
+                '<i class="lni lni-chevron-right"></i>'
+            ],
+        });
+    }
+
+    // ── Brands Logo Carousel ────────────────────────────────
+    // Guard: only init if .brands-logo-carousel exists on this page
+    if (document.querySelector('.brands-logo-carousel')) {
+        tns({
+            container: '.brands-logo-carousel',
+            autoplay: true,
+            autoplayButtonOutput: false,
+            mouseDrag: true,
+            gutter: 15,
+            nav: false,
+            controls: false,
+            responsive: {
+                0:   { items: 1 },
+                540: { items: 3 },
+                768: { items: 5 },
+                992: { items: 6 }
+            }
+        });
+    }
+
+});
 </script>
 
-<script type="text/javascript">
-    //========= Hero Slider
-    tns({
-        container: '.hero-slider',
-        slideBy: 'page',
-        autoplay: true,
-        autoplayButtonOutput: false,
-        mouseDrag: true,
-        gutter: 0,
-        items: 1,
-        nav: false,
-        controls: true,
-        controlsText: ['<i class="lni lni-chevron-left"></i>', '<i class="lni lni-chevron-right"></i>'],
-    });
-
-    //======== Brand Slider
-    tns({
-        container: '.brands-logo-carousel',
-        autoplay: true,
-        autoplayButtonOutput: false,
-        mouseDrag: true,
-        gutter: 15,
-        nav: false,
-        controls: false,
-        responsive: {
-            0:   { items: 1 },
-            540: { items: 3 },
-            768: { items: 5 },
-            992: { items: 6 }
-        }
-    });
-</script>
-
+{{-- ── Countdown Timer ────────────────────────────────────── --}}
 <script>
-    const finaleDate = new Date("December 31, 2026 00:00:00").getTime();
+(function () {
+    // Guard: only run if countdown elements exist on this page
+    var daysEl    = document.querySelector('#days');
+    var hoursEl   = document.querySelector('#hours');
+    var minutesEl = document.querySelector('#minutes');
+    var secondsEl = document.querySelector('#seconds');
 
-    // ✅ FIX: intervalId stored so we can clear it when timer ends
-    let countdownInterval;
+    if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
 
-    const timer = () => {
-        const now  = new Date().getTime();
-        const diff = finaleDate - now;
+    var finaleDate       = new Date("December 31, 2026 00:00:00").getTime();
+    var countdownInterval;
+
+    function pad2(n)  { return n <= 9  ? '0'  + n : '' + n; }
+    function pad3(n)  { return n <= 99 ? '0'  + pad2(n) : '' + n; }
+
+    function timer() {
+        var now  = new Date().getTime();
+        var diff = finaleDate - now;
 
         if (diff < 0) {
-            // Show "Event Ended" alert
-            const alertEl  = document.querySelector('.alert');
-            const timerBox = document.querySelector('.box-head');
+            var alertEl  = document.querySelector('.alert');
+            var timerBox = document.querySelector('.box-head');
             if (alertEl)  alertEl.style.display  = 'block';
             if (timerBox) timerBox.style.display  = 'none';
-
-            // ✅ FIX: clearInterval instead of illegal return
             clearInterval(countdownInterval);
-            return; // ✅ Legal here — we're inside a function
+            return;
         }
 
-        let days    = Math.floor(diff / (1000 * 60 * 60 * 24));
-        let hours   = Math.floor(diff % (1000 * 60 * 60 * 24) / (1000 * 60 * 60));
-        let minutes = Math.floor(diff % (1000 * 60 * 60) / (1000 * 60));
-        let seconds = Math.floor(diff % (1000 * 60) / 1000);
-
-        days    <= 99 ? days    = `0${days}`    : days;
-        days    <= 9  ? days    = `00${days}`   : days;
-        hours   <= 9  ? hours   = `0${hours}`   : hours;
-        minutes <= 9  ? minutes = `0${minutes}` : minutes;
-        seconds <= 9  ? seconds = `0${seconds}` : seconds;
-
-        document.querySelector('#days').textContent    = days;
-        document.querySelector('#hours').textContent   = hours;
-        document.querySelector('#minutes').textContent = minutes;
-        document.querySelector('#seconds').textContent = seconds;
-    };
+        daysEl.textContent    = pad3(Math.floor(diff / (1000 * 60 * 60 * 24)));
+        hoursEl.textContent   = pad2(Math.floor(diff % (1000 * 60 * 60 * 24) / (1000 * 60 * 60)));
+        minutesEl.textContent = pad2(Math.floor(diff % (1000 * 60 * 60) / (1000 * 60)));
+        secondsEl.textContent = pad2(Math.floor(diff % (1000 * 60) / 1000));
+    }
 
     timer();
     countdownInterval = setInterval(timer, 1000);
+})();
 </script>

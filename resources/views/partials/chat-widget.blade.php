@@ -116,8 +116,11 @@
 .chat-loading { text-align: center; color: #94a3b8; font-size: 12px; padding: 20px 0; }
 </style>
 
+{{-- ── Chat Widget ─────────────────────────────────────────── --}}
 <div class="chat-widget-wrapper">
+
     <div id="chat-box">
+
         <div class="chat-header">
             <div class="chat-header-avatar">SG</div>
             <div>
@@ -126,46 +129,77 @@
                     <span class="chat-status-dot"></span> Online
                 </div>
             </div>
-            <button class="chat-close-btn" onclick="toggleChat()">&#x2715;</button>
+            <button class="chat-close-btn" onclick="toggleChat()" aria-label="Close chat">&#x2715;</button>
         </div>
 
         <div class="chat-messages" id="chatMessages"></div>
 
         <div class="chat-scroll-row" id="chatScrollRow">
-            <button class="chat-scroll-btn" onclick="chatScrollUp()" title="Scroll up">&#9650;</button>
-            <button class="chat-scroll-btn" onclick="chatScrollDown()" title="Scroll down">&#9660;</button>
+            <button class="chat-scroll-btn" onclick="chatScrollUp()"   aria-label="Scroll up">&#9650;</button>
+            <button class="chat-scroll-btn" onclick="chatScrollDown()" aria-label="Scroll down">&#9660;</button>
         </div>
 
         <div class="chat-footer">
-            <input class="chat-input" id="chatInput" type="text" placeholder="Type a message..." />
-            <button class="chat-send-btn" onclick="sendChatMessage()">
+            {{-- Fix 1: added name attribute → resolves "form field should have id or name" warning --}}
+            <input
+                class="chat-input"
+                id="chatInput"
+                name="chat_message"
+                type="text"
+                placeholder="Type a message..."
+                autocomplete="off"
+            />
+            <button class="chat-send-btn" onclick="sendChatMessage()" aria-label="Send message">
                 <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
             </button>
         </div>
+
     </div>
 
-    <button class="chat-bubble-btn" id="chatBubble" onclick="toggleChat()">
+    <button class="chat-bubble-btn" id="chatBubble" onclick="toggleChat()" aria-label="Open chat">
         <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
         <span class="chat-badge" id="chatBadge"></span>
     </button>
+
 </div>
 
 <script>
     const ADMIN_ID       = parseInt('{{ $adminUser->id ?? 0 }}');
     const PUSHER_KEY     = '{{ config("broadcasting.connections.pusher.key") }}';
     const PUSHER_CLUSTER = '{{ config("broadcasting.connections.pusher.options.cluster") }}';
-    const CSRF_TOKEN     = '{{ csrf_token() }}';
+    const CSRF_TOKEN     = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     let   CUSTOMER_ID    = '{{ Session::get("customer_id") ?? "" }}';
 
     // ── Pusher init ───────────────────────────────────────────
-    const pusher = new Pusher(PUSHER_KEY, {
-        cluster:  PUSHER_CLUSTER,
-        forceTLS: true
-    });
+const pusher = new Pusher(PUSHER_KEY, {
+    cluster:  PUSHER_CLUSTER,
+    forceTLS: true,
+    authorizer: (channel) => {
+        return {
+            authorize: (socketId, callback) => {
+                fetch('/broadcasting/auth', {
+                    method:      'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRF-TOKEN': CSRF_TOKEN,
+                        'Accept':       'application/json',
+                    },
+                    body: new URLSearchParams({
+                        socket_id:    socketId,
+                        channel_name: channel.name,
+                    }),
+                })
+                .then(res => res.json())
+                .then(data => callback(null, data))
+                .catch(err => callback(err, null));
+            }
+        };
+    }
+});
 
     pusher.connection.bind('error', (err) => console.error('Pusher error:', err));
 
-    // ── Subscribe AFTER Pusher is connected ───────────────────
     pusher.connection.bind('connected', function () {
         console.log('Pusher connected');
         loadPreviousMessages();
@@ -178,13 +212,16 @@
     function subscribeToCustomerChannel(customerId) {
         if (!customerId || subscribedChannels[customerId]) return;
 
-        const ch = pusher.subscribe('customer-' + customerId);
+        const ch = pusher.subscribe('private-customer-' + customerId);  // ← CHANGED: added private-
 
         ch.bind('pusher:subscription_succeeded', () => {
-            console.log('Subscribed to customer-' + customerId);
+            console.log('Subscribed to private-customer-' + customerId);
         });
 
-        // Bind BOTH variants — covers broadcastAs() with or without dot prefix
+        ch.bind('pusher:subscription_error', (err) => {          // ← ADDED: catch auth failures
+            console.error('Subscription auth failed:', err);
+        });
+
         const handleAdminMessage = function (data) {
             console.log('Admin reply received:', data);
             if (data.sender === 'admin') {
@@ -194,8 +231,8 @@
             }
         };
 
-        ch.bind('.message.sent', handleAdminMessage);  // broadcastAs() with dot
-        ch.bind('message.sent',  handleAdminMessage);  // fallback without dot
+        ch.bind('.message.sent', handleAdminMessage);
+        ch.bind('message.sent',  handleAdminMessage);
 
         subscribedChannels[customerId] = ch;
     }
@@ -212,9 +249,18 @@
         container.innerHTML = '<div class="chat-loading">Loading messages...</div>';
 
         fetch('{{ route("chat.fetch") }}?receiver_id=' + ADMIN_ID, {
-            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN }
+            headers: {
+                'Accept':       'application/json',
+                'X-CSRF-TOKEN': CSRF_TOKEN
+            }
         })
-        .then(res => res.json())
+        .then(res => {
+            const contentType = res.headers.get('content-type') || '';
+            if (!res.ok || !contentType.includes('application/json')) {
+                throw new Error('Expected JSON, got: ' + contentType);
+            }
+            return res.json();
+        })
         .then(data => {
             container.innerHTML = '';
             if (!data.messages || data.messages.length === 0) {
@@ -225,14 +271,19 @@
                 addMessage(escapeHtml(msg.message), msg.from_type === 'customer', msg.created_at);
             });
         })
-        .catch(() => {
+        .catch(err => {
+            console.warn('Chat fetch warning:', err.message);
             container.innerHTML = '';
             showWelcomeMessage();
         });
     }
 
-    function showWelcomeMessage() {
-        const container = document.getElementById('chatMessages');
+  function showWelcomeMessage() {
+    const container = document.getElementById('chatMessages');
+    if (!container) return;
+
+    if (CUSTOMER_ID) {
+        // Logged-in welcome
         const div = document.createElement('div');
         div.className = 'msg';
         div.innerHTML =
@@ -242,7 +293,35 @@
                 '<div class="msg-time">Just now</div>' +
             '</div>';
         container.appendChild(div);
+    } else {
+        // Guest — show two messages
+        const msg1 = document.createElement('div');
+        msg1.className = 'msg';
+        msg1.innerHTML =
+            '<div class="msg-avatar">SG</div>' +
+            '<div>' +
+                '<div class="msg-bubble">👋 Hello! Welcome to ShopGrids Support.</div>' +
+                '<div class="msg-time">Just now</div>' +
+            '</div>';
+
+        const msg2 = document.createElement('div');
+        msg2.className = 'msg';
+        msg2.innerHTML =
+            '<div class="msg-avatar">SG</div>' +
+            '<div>' +
+                '<div class="msg-bubble">🔒 Please <a href="/customer-login" style="color:#1a6fd4;font-weight:600;text-decoration:underline;">login</a> to start chatting with us.</div>' +
+                '<div class="msg-time">Just now</div>' +
+            '</div>';
+
+        container.appendChild(msg1);
+
+        // Small delay so second message feels natural
+        setTimeout(() => {
+            container.appendChild(msg2);
+            container.scrollTop = container.scrollHeight;
+        }, 600);
     }
+}
 
     // ── Unread badge counter ──────────────────────────────────
     let unreadCount = 0;
@@ -266,25 +345,34 @@
     }
 
     // ── Toggle open / close ───────────────────────────────────
-    function toggleChat() {
-        const box       = document.getElementById('chat-box');
-        const scrollRow = document.getElementById('chatScrollRow');
+  function toggleChat() {
+    const box       = document.getElementById('chat-box');
+    const scrollRow = document.getElementById('chatScrollRow');
 
-        box.classList.toggle('open');
-        resetBadge();
+    box.classList.toggle('open');
+    resetBadge();
 
-        if (box.classList.contains('open')) {
-            if (scrollRow) scrollRow.classList.add('visible');
-            const msgs = document.getElementById('chatMessages');
-            if (msgs) msgs.scrollTop = msgs.scrollHeight;
-            setTimeout(() => {
-                const input = document.getElementById('chatInput');
-                if (input) input.focus();
-            }, 200);
-        } else {
-            if (scrollRow) scrollRow.classList.remove('visible');
+    if (box.classList.contains('open')) {
+        if (scrollRow) scrollRow.classList.add('visible');
+
+        // ✅ Show login prompt immediately if guest
+        if (!CUSTOMER_ID) {
+            const container = document.getElementById('chatMessages');
+            if (container && container.children.length === 0) {
+                showWelcomeMessage();
+            }
         }
+
+        const msgs = document.getElementById('chatMessages');
+        if (msgs) msgs.scrollTop = msgs.scrollHeight;
+        setTimeout(() => {
+            const input = document.getElementById('chatInput');
+            if (input) input.focus();
+        }, 200);
+    } else {
+        if (scrollRow) scrollRow.classList.remove('visible');
     }
+}
 
     function chatScrollUp()   { document.getElementById('chatMessages').scrollBy({ top: -72, behavior: 'smooth' }); }
     function chatScrollDown() { document.getElementById('chatMessages').scrollBy({ top:  72, behavior: 'smooth' }); }
@@ -292,7 +380,8 @@
     // ── Customer sends a message ──────────────────────────────
     function sendChatMessage() {
         const input = document.getElementById('chatInput');
-        const text  = input.value.trim();
+        if (!input) return;
+        const text = input.value.trim();
         if (!text) return;
 
         addMessage(escapeHtml(text), true);
@@ -309,7 +398,10 @@
             body: JSON.stringify({ message: text, receiver_id: ADMIN_ID })
         })
         .then(response => {
-            if (!response.ok) return response.text().then(err => { throw new Error(err); });
+            const contentType = response.headers.get('content-type') || '';
+            if (!response.ok || !contentType.includes('application/json')) {
+                return response.text().then(body => { throw new Error(body); });
+            }
             return response.json();
         })
         .then(data => {
@@ -317,14 +409,12 @@
             const cid = data.customer_id || CUSTOMER_ID;
             if (cid) {
                 CUSTOMER_ID = cid;
-                // Subscribe now that we have a confirmed customer ID
-                // Pusher is already connected at this point so it subscribes immediately
                 subscribeToCustomerChannel(cid);
             }
         })
         .catch(err => {
             removeTyping();
-            console.error('Chat send error:', err);
+            console.error('Chat send error:', err.message);
             addMessage('Sorry, something went wrong. Please try again.', false);
         });
     }
@@ -381,8 +471,12 @@
         if (t) t.remove();
     }
 
-    // ── Enter key to send ─────────────────────────────────────
-    document.getElementById('chatInput').addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') sendChatMessage();
+    document.addEventListener('DOMContentLoaded', function () {
+        const chatInput = document.getElementById('chatInput');
+        if (chatInput) {
+            chatInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') sendChatMessage();
+            });
+        }
     });
 </script>

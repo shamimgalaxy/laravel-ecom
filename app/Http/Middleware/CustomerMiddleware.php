@@ -5,24 +5,28 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Session;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Customer;
 
 class CustomerMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
-        if(Session::get('customer_id'))
-            {
-                return $next($request);
+        $customerId = session('customer_id');
+
+        if (!$customerId) {
+            return redirect('/customer-login');
+        }
+
+        // ← Log the customer into the auth system
+        if (!Auth::guard('customer')->check()) {
+            $customer = Customer::find($customerId);
+            if (!$customer) {
+                return redirect('/customer-login');
             }
-            else
-                {
-                    return redirect('/customer-login');
-                }
+            Auth::guard('customer')->setUser($customer);
+        }
+
+        return $next($request);
     }
 }

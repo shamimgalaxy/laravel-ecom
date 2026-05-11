@@ -2,12 +2,14 @@
 
 use Illuminate\Support\Facades\Broadcast;
 
-// Default Laravel user channel
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-// ShopGrids live chat channel (public — no auth required)
-Broadcast::channel('chat', function () {
-    return true;
+Broadcast::channel('chat', function ($user) {
+    return $user !== null;
+});
+
+Broadcast::channel('customer.{customerId}', function ($user, $customerId) {
+    return (int) $user->id === (int) $customerId;
 });

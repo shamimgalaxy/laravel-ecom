@@ -16,6 +16,53 @@ use App\Http\Controllers\SslCommerzPaymentController;
 use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\AdminChatController;
+use App\Http\Controllers\AboutUsController;
+use App\Http\Controllers\ContactUsController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
+
+// ─────────────────────────────────────────────
+// Broadcasting Auth
+// ─────────────────────────────────────────────
+Route::post('/broadcasting/auth', function (Request $request) {
+    $customerId = session('customer_id');
+
+    if (!$customerId) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    $channelName = $request->input('channel_name');
+    $socketId    = $request->input('socket_id');
+
+    if (str_starts_with($channelName, 'private-customer-')) {
+        $requestedId = str_replace('private-customer-', '', $channelName);
+        if ((string) $customerId !== (string) $requestedId) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+    }
+
+    $pusher = new \Pusher\Pusher(
+        config('broadcasting.connections.pusher.key'),
+        config('broadcasting.connections.pusher.secret'),
+        config('broadcasting.connections.pusher.app_id'),
+        ['cluster' => config('broadcasting.connections.pusher.options.cluster'), 'useTLS' => true]
+    );
+
+    return response()->json(
+        json_decode($pusher->authorizeChannel($channelName, $socketId), true)
+    );
+
+})->middleware('web')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
+
+// Temporary debug route — add near the top of web.php
+Route::get('/debug-session', function () {
+    return response()->json([
+        'customer_id' => Session::get('customer_id'),
+        'session_id'  => session()->getId(),
+        'all'         => session()->all(),
+    ]);
+})->middleware('web');
 
 // ─────────────────────────────────────────────
 // Public Routes
@@ -43,7 +90,7 @@ Route::get('/complete-order', [CheckoutController::class, 'completeOrder'])->nam
 // ─────────────────────────────────────────────
 
 Route::post('/customer/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
-Route::get('/customer/chat/fetch', [ChatController::class, 'fetchMessage'])->name('chat.fetch'); // ✅ FIXED: POST → GET
+Route::get('/customer/chat/fetch', [ChatController::class, 'fetchMessage'])->name('chat.fetch');
 
 // ─────────────────────────────────────────────
 // Customer Auth Routes
@@ -133,8 +180,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/chat', [AdminChatController::class, 'index'])->name('admin.chat.index');
     Route::get('/admin/chat/messages/{customerId}', [AdminChatController::class, 'getMessages'])->name('admin.chat.messages');
     Route::post('/admin/chat/send', [AdminChatController::class, 'sendMessage'])->name('admin.chat.send');
-    // routes/web.php
     Route::get('/admin/chat/customer/{id}', [AdminChatController::class, 'getCustomer']);
+
+    Route::get('/home/about-us', [AboutUsController::class, 'index'])->name('home.about-us');
+    Route::get('/home/contact-us', [ContactUsController::class, 'index'])->name('home.contact-us');
 
 });
 
