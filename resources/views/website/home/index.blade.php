@@ -6,21 +6,46 @@ Online Shopping — Premium Electronics
 @section('body')
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Syne:wght@400;500;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 :root {
-    --primary: #080808;
-    --accent: #E2B84A;
-    --accent2: #88C0E0;
-    --surface: #040404;
-    --card: #111111;
-    --border: rgba(226,184,74,0.15);
-    --text: #F8F4EC;
-    --muted: #706860;
-    --white: #F8F4EC;
-    --gradient-hero: linear-gradient(135deg, #040404 0%, #100A04 50%, #040810 100%);
-    --glow-red: 0 0 60px rgba(226,184,74,0.28);
-    --glow-amber: 0 0 60px rgba(136,192,224,0.22);
+    /* ── Next-Gen Color System ── */
+    --primary:    #9a9eb6;
+    --surface:    #060914;
+    --card:       rgba(12,16,36,0.85);
+    --card-solid: #0c1024;
+
+    /* Neon Cyan primary accent */
+    --accent:     #00f5d4;
+    --accent-dim: rgba(0,245,212,0.15);
+    --accent-glow:0 0 40px rgba(0,245,212,0.35);
+
+    /* Electric Violet secondary */
+    --accent2:    #a855f7;
+    --accent2-dim:rgba(168,85,247,0.15);
+    --accent2-glow:0 0 40px rgba(168,85,247,0.35);
+
+    /* Neon Rose tertiary */
+    --accent3:    #ff3d8b;
+    --accent3-dim:rgba(255,61,139,0.12);
+
+    --border:     rgba(0,245,212,0.12);
+    --border2:    rgba(168,85,247,0.12);
+    --text:       #e8ecf8;
+    --muted:      #5a6280;
+    --white:      #f0f4ff;
+
+    --gradient-hero: linear-gradient(135deg, #03050f 0%, #06091f 50%, #03050f 100%);
+    --gradient-card: linear-gradient(135deg, rgba(0,245,212,0.04) 0%, rgba(168,85,247,0.06) 100%);
+    --gradient-accent: linear-gradient(135deg, #00f5d4 0%, #a855f7 100%);
+    --gradient-accent2: linear-gradient(135deg, #a855f7 0%, #ff3d8b 100%);
+
+    --glow-red:   0 0 60px rgba(0,245,212,0.28);
+    --glow-amber: 0 0 60px rgba(168,85,247,0.22);
+
+    --radius-sm: 12px;
+    --radius-md: 20px;
+    --radius-lg: 28px;
 }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,13 +53,38 @@ Online Shopping — Premium Electronics
     body {
         background: var(--primary);
         color: var(--text);
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
         overflow-x: hidden;
     }
 
+    /* Ambient orb background */
+    body::before {
+        content: '';
+        position: fixed;
+        top: -20vh;
+        right: -10vw;
+        width: 60vw;
+        height: 60vw;
+        background: radial-gradient(circle, rgba(0,245,212,0.06) 0%, transparent 65%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    body::after {
+        content: '';
+        position: fixed;
+        bottom: -20vh;
+        left: -10vw;
+        width: 50vw;
+        height: 50vw;
+        background: radial-gradient(circle, rgba(168,85,247,0.06) 0%, transparent 65%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
     h1, h2, h3, h4, h5 {
-        font-family: 'Clash Display', sans-serif;
-        letter-spacing: -0.02em;
+        font-family: 'Outfit', sans-serif;
+        letter-spacing: -0.03em;
     }
 
     /* ── HERO ─────────────────────────────────── */
@@ -42,7 +92,7 @@ Online Shopping — Premium Electronics
         background: var(--gradient-hero);
         position: relative;
         overflow: hidden;
-        padding: 60px 0 80px;
+        padding: 70px 0 90px;
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -55,7 +105,8 @@ Online Shopping — Premium Electronics
         right: -10%;
         width: 700px;
         height: 700px;
-        background: radial-gradient(circle, rgba(255,59,48,0.12) 0%, transparent 65%);
+        background: radial-gradient(circle, rgba(0,245,212,0.1) 0%, transparent 65%);
+        animation: pulseOrb 8s ease-in-out infinite alternate;
         pointer-events: none;
     }
 
@@ -66,28 +117,42 @@ Online Shopping — Premium Electronics
         left: -10%;
         width: 600px;
         height: 600px;
-        background: radial-gradient(circle, rgba(90,50,200,0.1) 0%, transparent 65%);
+        background: radial-gradient(circle, rgba(168,85,247,0.1) 0%, transparent 65%);
+        animation: pulseOrb 10s ease-in-out infinite alternate-reverse;
         pointer-events: none;
     }
 
-    /* Grid texture */
+    @keyframes pulseOrb {
+        0%   { transform: scale(1) translate(0,0); opacity:0.6; }
+        100% { transform: scale(1.3) translate(3%,3%); opacity:1; }
+    }
+
+
+
+
+    /* Grid texture — finer, more futuristic */
     .hero-area .grid-bg {
         position: absolute;
         inset: 0;
         background-image:
-            linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-        background-size: 60px 60px;
+            linear-gradient(rgba(0,245,212,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,245,212,0.04) 1px, transparent 1px),
+            linear-gradient(rgba(168,85,247,0.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(168,85,247,0.025) 1px, transparent 1px);
+        background-size: 60px 60px, 60px 60px, 15px 15px, 15px 15px;
         pointer-events: none;
+        mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
     }
 
     .hero-slider-wrap {
         position: relative;
-        border-radius: 24px;
+        border-radius: var(--radius-lg);
         overflow: hidden;
         border: 1px solid var(--border);
         background: var(--card);
         height: 420px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 0 0 1px rgba(0,245,212,0.05), inset 0 1px 0 rgba(0,245,212,0.08);
     }
 
     .hero-slide {
@@ -108,7 +173,7 @@ Online Shopping — Premium Electronics
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(100deg, rgba(10,10,15,0.92) 40%, rgba(10,10,15,0.5) 100%);
+        background: linear-gradient(100deg, rgba(3,5,15,0.95) 40%, rgba(3,5,15,0.55) 100%);
     }
 
     .hero-slide.active {
@@ -120,25 +185,32 @@ Online Shopping — Premium Electronics
     .hero-slide .content { position: relative; z-index: 2; }
 
     .hero-slide .badge {
-        display: inline-block;
-        background: var(--accent);
-        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--accent-dim);
+        color: var(--accent);
         font-size: 11px;
         font-weight: 700;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
         padding: 5px 14px;
         border-radius: 100px;
         margin-bottom: 18px;
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'JetBrains Mono', monospace;
+        border: 1px solid rgba(0,245,212,0.25);
     }
 
     .hero-slide h2 {
         font-size: 44px;
-        font-weight: 700;
-        line-height: 1.1;
+        font-weight: 800;
+        line-height: 1.05;
         color: var(--white);
         margin-bottom: 14px;
+        background: linear-gradient(135deg, #fff 0%, rgba(0,245,212,0.85) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .hero-slide p {
@@ -151,42 +223,44 @@ Online Shopping — Premium Electronics
 
     .hero-slide .price-tag {
         font-size: 32px;
-        font-weight: 700;
-        color: var(--accent2);
-        font-family: 'Clash Display', sans-serif;
+        font-weight: 800;
+        color: var(--accent);
+        font-family: 'Outfit', sans-serif;
         margin-bottom: 28px;
+        text-shadow: 0 0 30px rgba(0,245,212,0.4);
     }
 
     .hero-slide .price-tag span {
         font-size: 14px;
         font-weight: 400;
         color: var(--muted);
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
     }
 
     .btn-primary-custom {
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        background: var(--accent);
-        color: #fff;
+        background: var(--gradient-accent);
+        color: #03050f;
         padding: 13px 28px;
         border-radius: 100px;
-        font-weight: 600;
+        font-weight: 700;
         font-size: 14px;
         text-decoration: none;
         border: none;
         cursor: pointer;
-        transition: all 0.25s;
-        font-family: 'DM Sans', sans-serif;
+        transition: all 0.3s;
+        font-family: 'Space Grotesk', sans-serif;
         letter-spacing: 0.02em;
+        position: relative;
+        overflow: hidden;
     }
 
     .btn-primary-custom:hover {
-        background: #E02D24;
-        transform: translateY(-2px);
-        box-shadow: 0 12px 35px rgba(255,59,48,0.45);
-        color: #fff;
+        transform: translateY(-3px);
+        box-shadow: 0 16px 40px rgba(0,245,212,0.4), 0 0 0 1px rgba(0,245,212,0.3);
+        color: #03050f;
     }
 
     .hero-dots {
@@ -202,19 +276,21 @@ Online Shopping — Premium Electronics
         width: 8px;
         height: 8px;
         border-radius: 100px;
-        background: rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.15);
         cursor: pointer;
         transition: all 0.3s;
+        border: 1px solid rgba(0,245,212,0.2);
     }
 
     .hero-dot.active {
         width: 28px;
-        background: var(--accent);
+        background: var(--gradient-accent);
+        border-color: transparent;
     }
 
     /* Side banners */
     .hero-side-card {
-        border-radius: 20px;
+        border-radius: var(--radius-md);
         overflow: hidden;
         border: 1px solid var(--border);
         background: var(--card);
@@ -227,33 +303,69 @@ Online Shopping — Premium Electronics
         background-position: center;
         min-height: 195px;
         text-decoration: none;
+        transition: all 0.35s;
+        backdrop-filter: blur(8px);
+    }
+
+    .hero-side-card:hover {
+        border-color: rgba(0,245,212,0.3);
+        box-shadow: var(--accent-glow);
+        transform: translateY(-3px);
     }
 
     .hero-side-card::before {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(180deg, rgba(10,10,15,0.3) 0%, rgba(10,10,15,0.88) 100%);
+        background: linear-gradient(180deg, rgba(3,5,15,0.2) 0%, rgba(3,5,15,0.92) 100%);
     }
 
     .hero-side-card .content { position: relative; z-index: 2; }
 
-    .hero-side-card .sub { font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 6px; }
-    .hero-side-card h3 { font-size: 20px; color: #fff; margin-bottom: 4px; }
-    .hero-side-card .price { font-size: 22px; color: var(--accent2); font-family: 'Clash Display', sans-serif; font-weight: 700; }
+    .hero-side-card .sub {
+        font-size: 11px;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-weight: 700;
+        margin-bottom: 6px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .hero-side-card h3 { font-size: 20px; color: #fff; margin-bottom: 4px; font-weight: 700; }
+    .hero-side-card .price {
+        font-size: 22px;
+        color: var(--accent);
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        text-shadow: 0 0 20px rgba(0,245,212,0.5);
+    }
 
     .hero-sale-card {
-        border-radius: 20px;
-        background: linear-gradient(135deg, #1E1018 0%, #2A102A 100%);
-        border: 1px solid rgba(255,59,48,0.2);
+        border-radius: var(--radius-md);
+        background: linear-gradient(135deg, rgba(0,245,212,0.05) 0%, rgba(168,85,247,0.08) 100%);
+        border: 1px solid var(--border);
         padding: 32px;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(12px);
     }
 
-    .hero-sale-card h2 { font-size: 26px; color: #fff; margin-bottom: 10px; }
-    .hero-sale-card p { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+    .hero-sale-card::before {
+        content: '';
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(168,85,247,0.25) 0%, transparent 70%);
+    }
+
+    .hero-sale-card h2 { font-size: 26px; color: #fff; margin-bottom: 10px; font-weight: 800; position: relative; z-index:1; }
+    .hero-sale-card p { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; position: relative; z-index:1; }
 
     /* ── TRUST BAR ────────────────────────────── */
     .trust-bar {
@@ -261,6 +373,15 @@ Online Shopping — Premium Electronics
         border-top: 1px solid var(--border);
         border-bottom: 1px solid var(--border);
         padding: 22px 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .trust-bar::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(0,245,212,0.03) 0%, rgba(168,85,247,0.03) 50%, rgba(0,245,212,0.03) 100%);
     }
 
     .trust-bar ul {
@@ -270,6 +391,7 @@ Online Shopping — Premium Electronics
         list-style: none;
         flex-wrap: wrap;
         gap: 16px;
+        position: relative;
     }
 
     .trust-bar li {
@@ -278,12 +400,13 @@ Online Shopping — Premium Electronics
         gap: 12px;
         color: var(--text);
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 600;
     }
 
     .trust-bar li i {
         font-size: 22px;
         color: var(--accent);
+        filter: drop-shadow(0 0 6px rgba(0,245,212,0.45));
     }
 
     .trust-bar li span { color: var(--muted); font-size: 12px; display: block; font-weight: 400; }
@@ -297,16 +420,28 @@ Online Shopping — Premium Electronics
         letter-spacing: 0.18em;
         text-transform: uppercase;
         color: var(--accent);
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'JetBrains Mono', monospace;
         margin-bottom: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-label::before {
+        content: '';
+        display: inline-block;
+        width: 18px;
+        height: 2px;
+        background: var(--gradient-accent);
+        border-radius: 2px;
     }
 
     .section-heading {
         font-size: 42px;
-        font-weight: 700;
+        font-weight: 800;
         color: var(--white);
         margin-bottom: 14px;
-        line-height: 1.1;
+        line-height: 1.05;
     }
 
     .section-desc {
@@ -316,80 +451,165 @@ Online Shopping — Premium Electronics
         line-height: 1.7;
     }
 
-    /* ── CATEGORIES ───────────────────────────── */
-    .featured-categories { background: var(--surface); }
+  /* ── CATEGORIES ───────────────────────────── */
+.featured-categories { background: var(--surface); }
 
-    .category-card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 32px 28px 0;
-        overflow: hidden;
-        position: relative;
-        transition: all 0.35s ease;
-        margin-bottom: 24px;
-        height: 100%;
-    }
+.category-card {
+    background: var(--card-solid);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 28px 24px 0;
+    overflow: hidden;
+    position: relative;
+    transition: transform .35s cubic-bezier(.23,1,.32,1), border-color .35s, box-shadow .35s;
+    margin-bottom: 24px;
+    height: 100%;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(12px);
+}
 
-    .category-card:hover {
-        border-color: rgba(255,59,48,0.35);
-        transform: translateY(-6px);
-        box-shadow: 0 24px 60px rgba(0,0,0,0.5), var(--glow-red);
-    }
+.category-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.35s;
+}
 
-    .category-card .cat-label {
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--accent);
-        font-family: 'DM Sans', sans-serif;
-        margin-bottom: 8px;
-    }
+/* Glow orb */
+.category-card .orb {
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,245,212,0.15) 0%, transparent 70%);
+    transition: transform 0.4s;
+    pointer-events: none;
+}
 
-    .category-card h3 {
-        font-size: 22px;
-        color: var(--white);
-        margin-bottom: 20px;
-    }
+.category-card:hover .orb { transform: scale(1.4); }
 
-    .category-card ul {
-        list-style: none;
-        margin-bottom: 24px;
-    }
+.category-card:hover {
+    border-color: rgba(0,245,212,0.35);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(0,245,212,0.18);
+}
 
-    .category-card ul li {
-        padding: 8px 0;
-        border-top: 1px solid var(--border);
-    }
+.category-card:hover::before { opacity: 1; }
 
-    .category-card ul li:last-child { border-bottom: 1px solid var(--border); }
+/* Count badge */
+.category-card .cat-count {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    background: rgba(0,245,212,0.08);
+    border: 1px solid rgba(0,245,212,0.2);
+    padding: 3px 9px;
+    border-radius: 100px;
+}
 
-    .category-card ul li a {
-        color: var(--muted);
-        text-decoration: none;
-        font-size: 14px;
-        transition: color 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
+.category-card .cat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(0,245,212,0.08);
+    border: 1px solid rgba(0,245,212,0.2);
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 10px;
+    width: fit-content;
+}
 
-    .category-card ul li a:hover { color: var(--white); }
-    .category-card ul li a::after { content: '→'; font-size: 12px; opacity: 0; transition: all 0.2s; }
-    .category-card ul li a:hover::after { opacity: 1; transform: translateX(4px); }
+.category-card h3 {
+    font-size: 18px;
+    color: var(--white);
+    margin-bottom: 14px;
+    font-weight: 700;
+}
 
-    .category-card .cat-img {
-        display: block;
-        width: 100%;
-        height: 140px;
-        object-fit: contain;
-        filter: drop-shadow(0 -20px 30px rgba(255,59,48,0.12));
-        transform: scale(1);
-        transition: transform 0.4s ease;
-    }
+.category-card ul {
+    list-style: none;
+    margin-bottom: 18px;
+    flex: 1;
+}
 
-    .category-card:hover .cat-img { transform: scale(1.06) translateY(-4px); }
+.category-card ul li {
+    padding: 8px 0;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.category-card ul li:last-child { border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+.category-card ul li a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s, padding-left 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.category-card ul li a:hover { color: var(--white); padding-left: 4px; }
+.category-card ul li a::after { content: '→'; font-size: 11px; opacity: 0; transition: all 0.2s; color: var(--accent); }
+.category-card ul li a:hover::after { opacity: 1; transform: translateX(3px); }
+
+.category-card .cat-img {
+    display: block;
+    width: 100%;
+    height: 110px;
+    object-fit: contain;
+    filter: drop-shadow(0 -10px 20px rgba(0,245,212,0.2));
+    transform: scale(1);
+    transition: transform 0.4s cubic-bezier(.23,1,.32,1);
+    margin-top: auto;
+}
+
+.category-card:hover .cat-img { transform: scale(1.08) translateY(-6px); }
+
+/* View all footer — reveals on hover */
+.category-card .cat-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, transparent, rgba(12,16,36,0.95));
+    padding: 16px 24px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.category-card:hover .cat-footer { opacity: 1; transform: translateY(0); }
+
+.category-card .cat-footer span {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: 0.04em;
+}
+
+.category-card .cat-footer i { font-size: 14px; color: var(--accent); }
 
     /* ── PRODUCTS ─────────────────────────────── */
     .trending-product { background: var(--primary); }
@@ -397,23 +617,24 @@ Online Shopping — Premium Electronics
     .product-card {
         background: var(--card);
         border: 1px solid var(--border);
-        border-radius: 20px;
+        border-radius: var(--radius-md);
         overflow: hidden;
         transition: all 0.35s ease;
         margin-bottom: 24px;
         position: relative;
+        backdrop-filter: blur(12px);
     }
 
     .product-card:hover {
-        border-color: rgba(255,159,10,0.3);
+        border-color: rgba(0,245,212,0.25);
         transform: translateY(-6px);
-        box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+        box-shadow: 0 24px 60px rgba(0,0,0,0.6), var(--accent-glow);
     }
 
     .product-card .img-wrap {
         position: relative;
         overflow: hidden;
-        background: #0d0d14;
+        background: linear-gradient(135deg, rgba(0,245,212,0.04) 0%, rgba(168,85,247,0.06) 100%);
         height: 220px;
         display: flex;
         align-items: center;
@@ -438,7 +659,7 @@ Online Shopping — Premium Electronics
         padding-bottom: 20px;
         opacity: 0;
         transition: opacity 0.3s;
-        background: linear-gradient(180deg, transparent 30%, rgba(10,10,15,0.85) 100%);
+        background: linear-gradient(180deg, transparent 30%, rgba(3,5,15,0.92) 100%);
     }
 
     .product-card:hover .overlay-btn { opacity: 1; }
@@ -447,16 +668,16 @@ Online Shopping — Premium Electronics
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: var(--accent);
-        color: #fff;
+        background: var(--gradient-accent);
+        color: #03050f;
         padding: 11px 22px;
         border-radius: 100px;
         font-size: 13px;
-        font-weight: 600;
+        font-weight: 700;
         text-decoration: none;
         transform: translateY(10px);
         transition: transform 0.3s;
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
     }
 
     .product-card:hover .overlay-btn a { transform: translateY(0); }
@@ -468,10 +689,10 @@ Online Shopping — Premium Electronics
     .product-card .cat-tag {
         font-size: 11px;
         font-weight: 700;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
         color: var(--accent);
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'JetBrains Mono', monospace;
         margin-bottom: 6px;
     }
 
@@ -479,13 +700,14 @@ Online Shopping — Premium Electronics
         font-size: 16px;
         color: var(--white);
         text-decoration: none;
-        font-family: 'Clash Display', sans-serif;
+        font-family: 'Outfit', sans-serif;
         transition: color 0.2s;
         display: block;
         margin-bottom: 10px;
+        font-weight: 600;
     }
 
-    .product-card h4 a:hover { color: var(--accent2); }
+    .product-card h4 a:hover { color: var(--accent); }
 
     .product-card .stars { display: flex; align-items: center; gap: 3px; margin-bottom: 12px; }
     .product-card .stars i { font-size: 12px; color: var(--accent2); }
@@ -499,9 +721,10 @@ Online Shopping — Premium Electronics
 
     .product-card .price {
         font-size: 22px;
-        font-weight: 700;
-        color: var(--white);
-        font-family: 'Clash Display', sans-serif;
+        font-weight: 800;
+        color: var(--accent);
+        font-family: 'Outfit', sans-serif;
+        text-shadow: 0 0 20px rgba(0,245,212,0.3);
     }
 
     .product-card .wishlist-btn {
@@ -519,22 +742,27 @@ Online Shopping — Premium Electronics
         transition: all 0.2s;
     }
 
-    .product-card .wishlist-btn:hover { background: rgba(255,59,48,0.15); color: var(--accent); border-color: rgba(255,59,48,0.3); }
+    .product-card .wishlist-btn:hover {
+        background: rgba(255,61,139,0.12);
+        color: var(--accent3);
+        border-color: rgba(255,61,139,0.3);
+        box-shadow: 0 0 16px rgba(255,61,139,0.2);
+    }
 
     /* NEW badge */
     .badge-new {
         position: absolute;
         top: 14px;
         left: 14px;
-        background: var(--accent);
-        color: #fff;
+        background: var(--gradient-accent);
+        color: #03050f;
         font-size: 10px;
         font-weight: 800;
         letter-spacing: 0.12em;
         text-transform: uppercase;
         padding: 4px 10px;
         border-radius: 100px;
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
         z-index: 2;
     }
 
@@ -542,7 +770,7 @@ Online Shopping — Premium Electronics
     .banner.section { background: var(--surface); }
 
     .promo-banner {
-        border-radius: 24px;
+        border-radius: var(--radius-lg);
         overflow: hidden;
         position: relative;
         min-height: 240px;
@@ -552,42 +780,66 @@ Online Shopping — Premium Electronics
         background-size: cover;
         background-position: center;
         text-decoration: none;
-        transition: transform 0.3s;
+        transition: all 0.3s;
+        border: 1px solid var(--border);
     }
+    .promo-banner-inner {
+    animation: promoDrift 1.5s ease-in-out infinite;
+}
 
-    .promo-banner:hover { transform: scale(1.015); }
+@keyframes promoDrift {
+    0%   { transform: translateX(0px); }
+    50%  { transform: translateX(10px); }
+    100% { transform: translateX(0px); }
+}
+
+    .promo-banner:hover {
+        transform: scale(1.015);
+        border-color: rgba(0,245,212,0.3);
+        box-shadow: var(--accent-glow);
+    }
 
     .promo-banner::before {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(100deg, rgba(10,10,15,0.9) 30%, rgba(10,10,15,0.4) 100%);
+        background: linear-gradient(100deg, rgba(3,5,15,0.94) 30%, rgba(3,5,15,0.4) 100%);
     }
 
     .promo-banner .content { position: relative; z-index: 2; }
-    .promo-banner h2 { font-size: 28px; color: #fff; margin-bottom: 8px; }
-    .promo-banner p { font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 18px; line-height: 1.6; }
+    .promo-banner h2 { font-size: 28px; color: #fff; margin-bottom: 8px; font-weight: 800; }
+    .promo-banner p { font-size: 14px; color: rgba(255,255,255,0.55); margin-bottom: 18px; line-height: 1.6; }
+
+  
+
+
+@keyframes floatLR {
+    0%   { transform: translateX(0px); }
+    50%  { transform: translateX(12px); }
+    100% { transform: translateX(0px); }
+}
 
     .btn-outline-light-custom {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: transparent;
-        color: #fff;
+        background: rgba(0,245,212,0.08);
+        color: var(--accent);
         padding: 10px 22px;
         border-radius: 100px;
         font-weight: 600;
         font-size: 13px;
         text-decoration: none;
-        border: 1px solid rgba(255,255,255,0.3);
+        border: 1px solid rgba(0,245,212,0.3);
         transition: all 0.25s;
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
     }
 
     .btn-outline-light-custom:hover {
-        background: rgba(255,255,255,0.12);
-        border-color: rgba(255,255,255,0.6);
-        color: #fff;
+        background: rgba(0,245,212,0.18);
+        border-color: var(--accent);
+        color: var(--accent);
+        box-shadow: var(--accent-glow);
     }
 
     /* ── SPECIAL OFFER ────────────────────────── */
@@ -596,20 +848,22 @@ Online Shopping — Premium Electronics
     .offer-product-mini {
         background: var(--card);
         border: 1px solid var(--border);
-        border-radius: 20px;
+        border-radius: var(--radius-md);
         overflow: hidden;
         margin-bottom: 24px;
         transition: all 0.3s;
+        backdrop-filter: blur(12px);
     }
 
     .offer-product-mini:hover {
-        border-color: rgba(255,159,10,0.3);
+        border-color: rgba(0,245,212,0.25);
         transform: translateY(-4px);
+        box-shadow: 0 16px 40px rgba(0,0,0,0.5), var(--accent-glow);
     }
 
     .offer-product-mini .mini-img {
         height: 160px;
-        background: #0d0d14;
+        background: linear-gradient(135deg, rgba(0,245,212,0.04) 0%, rgba(168,85,247,0.06) 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -625,25 +879,26 @@ Online Shopping — Premium Electronics
     .offer-product-mini:hover .mini-img img { transform: scale(1.07); }
 
     .offer-product-mini .mini-body { padding: 16px; }
-    .offer-product-mini .mini-body .cat-tag { font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px; font-family: 'DM Sans', sans-serif; }
-    .offer-product-mini .mini-body h4 a { font-size: 14px; color: var(--white); text-decoration: none; font-family: 'Clash Display', sans-serif; display: block; margin-bottom: 8px; }
+    .offer-product-mini .mini-body .cat-tag { font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 5px; font-family: 'JetBrains Mono', monospace; }
+    .offer-product-mini .mini-body h4 a { font-size: 14px; color: var(--white); text-decoration: none; font-family: 'Outfit', sans-serif; display: block; margin-bottom: 8px; font-weight: 600; }
     .offer-product-mini .mini-body .stars { display: flex; align-items: center; gap: 2px; margin-bottom: 8px; }
     .offer-product-mini .mini-body .stars i { font-size: 11px; color: var(--accent2); }
-    .offer-product-mini .mini-body .price { font-size: 18px; font-weight: 700; color: var(--accent2); font-family: 'Clash Display', sans-serif; }
+    .offer-product-mini .mini-body .price { font-size: 18px; font-weight: 800; color: var(--accent); font-family: 'Outfit', sans-serif; text-shadow: 0 0 14px rgba(0,245,212,0.3); }
 
     /* Offer spotlight card */
     .offer-spotlight {
         background: var(--card);
         border: 1px solid var(--border);
-        border-radius: 24px;
+        border-radius: var(--radius-lg);
         overflow: hidden;
         height: 100%;
+        backdrop-filter: blur(12px);
     }
 
     .offer-spotlight .spotlight-img {
         position: relative;
         height: 260px;
-        background: linear-gradient(135deg, #0d0d14 0%, #1A0A1E 100%);
+        background: linear-gradient(135deg, rgba(0,245,212,0.05) 0%, rgba(168,85,247,0.08) 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -663,7 +918,7 @@ Online Shopping — Premium Electronics
         width: 260px;
         height: 260px;
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(255,59,48,0.2) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(0,245,212,0.18) 0%, transparent 70%);
         z-index: 1;
     }
 
@@ -671,7 +926,7 @@ Online Shopping — Premium Electronics
         position: absolute;
         top: 20px;
         right: 20px;
-        background: var(--accent);
+        background: var(--gradient-accent2);
         color: #fff;
         width: 56px;
         height: 56px;
@@ -681,16 +936,17 @@ Online Shopping — Premium Electronics
         justify-content: center;
         font-weight: 800;
         font-size: 13px;
-        font-family: 'Clash Display', sans-serif;
+        font-family: 'Outfit', sans-serif;
         z-index: 3;
+        box-shadow: 0 0 20px rgba(168,85,247,0.4);
     }
 
     .offer-spotlight .spotlight-body { padding: 28px; }
-    .offer-spotlight .spotlight-body h2 a { font-size: 22px; color: var(--white); text-decoration: none; display: block; margin-bottom: 10px; }
+    .offer-spotlight .spotlight-body h2 a { font-size: 22px; color: var(--white); text-decoration: none; display: block; margin-bottom: 10px; font-weight: 700; }
     .offer-spotlight .spotlight-body .stars { display: flex; gap: 3px; margin-bottom: 14px; }
     .offer-spotlight .spotlight-body .stars i { color: var(--accent2); font-size: 13px; }
     .offer-spotlight .spotlight-body .price-group { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .offer-spotlight .spotlight-body .price-now { font-size: 28px; font-weight: 700; color: var(--accent2); font-family: 'Clash Display', sans-serif; }
+    .offer-spotlight .spotlight-body .price-now { font-size: 28px; font-weight: 800; color: var(--accent); font-family: 'Outfit', sans-serif; text-shadow: 0 0 20px rgba(0,245,212,0.35); }
     .offer-spotlight .spotlight-body .price-was { font-size: 16px; color: var(--muted); text-decoration: line-through; }
     .offer-spotlight .spotlight-body p { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
 
@@ -703,47 +959,60 @@ Online Shopping — Premium Electronics
     }
 
     .countdown-box {
-        background: var(--surface);
+        background: rgba(0,245,212,0.05);
         border: 1px solid var(--border);
-        border-radius: 12px;
+        border-radius: var(--radius-sm);
         padding: 12px 8px;
         text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .countdown-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--gradient-accent);
     }
 
     .countdown-box h1 {
         font-size: 28px;
         font-weight: 800;
-        color: var(--white);
-        font-family: 'Clash Display', sans-serif;
+        color: var(--accent);
+        font-family: 'JetBrains Mono', monospace;
         letter-spacing: -0.02em;
         line-height: 1;
         margin-bottom: 4px;
+        text-shadow: 0 0 20px rgba(0,245,212,0.4);
     }
 
     .countdown-box h2 {
         font-size: 10px;
         color: var(--muted);
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-family: 'DM Sans', sans-serif;
+        letter-spacing: 0.12em;
+        font-family: 'Space Grotesk', sans-serif;
         font-weight: 500;
     }
 
     .event-ended {
-        background: rgba(255,59,48,0.08);
-        border: 1px solid rgba(255,59,48,0.2);
-        border-radius: 12px;
+        background: var(--accent2-dim);
+        border: 1px solid rgba(168,85,247,0.25);
+        border-radius: var(--radius-sm);
         padding: 16px;
         text-align: center;
-        color: var(--accent);
+        color: var(--accent2);
         font-size: 14px;
         font-weight: 600;
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
     }
 
     /* ── SIDE PROMO BANNER ────────────────────── */
     .side-promo-banner {
-        border-radius: 20px;
+        border-radius: var(--radius-md);
         overflow: hidden;
         position: relative;
         min-height: 200px;
@@ -753,19 +1022,26 @@ Online Shopping — Premium Electronics
         background-size: cover;
         background-position: center;
         margin-top: 24px;
+        border: 1px solid var(--border);
+        transition: all 0.35s;
+    }
+
+    .side-promo-banner:hover {
+        border-color: rgba(0,245,212,0.3);
+        box-shadow: var(--accent-glow);
     }
 
     .side-promo-banner::before {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(100deg, rgba(10,10,15,0.9) 30%, rgba(10,10,15,0.4) 100%);
+        background: linear-gradient(100deg, rgba(3,5,15,0.94) 30%, rgba(3,5,15,0.4) 100%);
     }
 
     .side-promo-banner .content { position: relative; z-index: 2; }
-    .side-promo-banner h2 { font-size: 20px; color: #fff; margin-bottom: 6px; }
-    .side-promo-banner p { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 14px; }
-    .side-promo-banner .price-tag { font-size: 24px; font-weight: 700; color: var(--accent2); font-family: 'Clash Display', sans-serif; margin-bottom: 16px; }
+    .side-promo-banner h2 { font-size: 20px; color: #fff; margin-bottom: 6px; font-weight: 700; }
+    .side-promo-banner p { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 14px; }
+    .side-promo-banner .price-tag { font-size: 24px; font-weight: 800; color: var(--accent); font-family: 'Outfit', sans-serif; margin-bottom: 16px; text-shadow: 0 0 16px rgba(0,245,212,0.4); }
 
     /* ── PRODUCT LIST ─────────────────────────── */
     .home-product-list { background: var(--surface); }
@@ -776,9 +1052,13 @@ Online Shopping — Premium Electronics
         color: var(--white);
         padding-bottom: 14px;
         margin-bottom: 4px;
-        border-bottom: 2px solid var(--accent);
+        border-bottom: 2px solid transparent;
+        background-image: var(--gradient-accent);
+        background-size: 60px 2px;
+        background-repeat: no-repeat;
+        background-position: bottom left;
         display: inline-block;
-        font-family: 'Clash Display', sans-serif;
+        font-family: 'Outfit', sans-serif;
     }
 
     .list-product-item {
@@ -788,7 +1068,7 @@ Online Shopping — Premium Electronics
         padding: 14px 0;
         border-bottom: 1px solid var(--border);
         text-decoration: none;
-        transition: all 0.2s;
+        transition: all 0.25s;
     }
 
     .list-product-item:hover { padding-left: 6px; }
@@ -796,7 +1076,7 @@ Online Shopping — Premium Electronics
     .list-product-item .list-thumb {
         width: 68px;
         height: 68px;
-        border-radius: 12px;
+        border-radius: var(--radius-sm);
         background: var(--card);
         border: 1px solid var(--border);
         overflow: hidden;
@@ -804,7 +1084,10 @@ Online Shopping — Premium Electronics
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: border-color 0.25s;
     }
+
+    .list-product-item:hover .list-thumb { border-color: rgba(0,245,212,0.3); }
 
     .list-product-item .list-thumb img {
         max-width: 90%;
@@ -818,17 +1101,21 @@ Online Shopping — Premium Electronics
     .list-product-item .list-info h3 {
         font-size: 14px;
         color: var(--text);
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
         font-weight: 500;
         line-height: 1.4;
         margin-bottom: 5px;
+        transition: color 0.2s;
     }
+
+    .list-product-item:hover .list-info h3 { color: var(--white); }
 
     .list-product-item .list-info span {
         font-size: 15px;
         font-weight: 700;
-        color: var(--accent2);
-        font-family: 'Clash Display', sans-serif;
+        color: var(--accent);
+        font-family: 'Outfit', sans-serif;
+        text-shadow: 0 0 14px rgba(0,245,212,0.3);
     }
 
     /* ── BRANDS ───────────────────────────────── */
@@ -836,15 +1123,25 @@ Online Shopping — Premium Electronics
         background: var(--primary);
         padding: 60px 0;
         overflow: hidden;
+        position: relative;
+    }
+
+    .brands::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, var(--primary) 0%, transparent 15%, transparent 85%, var(--primary) 100%);
+        z-index: 2;
+        pointer-events: none;
     }
 
     .brands .title {
         text-align: center;
-        font-size: 14px;
+        font-size: 11px;
         color: var(--muted);
         text-transform: uppercase;
-        letter-spacing: 0.2em;
-        font-family: 'DM Sans', sans-serif;
+        letter-spacing: 0.22em;
+        font-family: 'JetBrains Mono', monospace;
         margin-bottom: 36px;
     }
 
@@ -864,11 +1161,11 @@ Online Shopping — Premium Electronics
         height: 36px;
         width: auto;
         filter: brightness(0) invert(1);
-        opacity: 0.25;
+        opacity: 0.18;
         transition: opacity 0.3s;
     }
 
-    .brand-logo img:hover { opacity: 0.7; }
+    .brand-logo img:hover { opacity: 0.65; }
 
     /* ── BLOG ─────────────────────────────────── */
     .blog-section { background: var(--surface); }
@@ -876,18 +1173,34 @@ Online Shopping — Premium Electronics
     .blog-card {
         background: var(--card);
         border: 1px solid var(--border);
-        border-radius: 20px;
+        border-radius: var(--radius-md);
         overflow: hidden;
         transition: all 0.35s;
         margin-bottom: 24px;
         height: 100%;
+        backdrop-filter: blur(12px);
+        position: relative;
+    }
+
+    .blog-card::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--gradient-accent);
+        opacity: 0;
+        transition: opacity 0.35s;
     }
 
     .blog-card:hover {
-        border-color: rgba(255,59,48,0.25);
+        border-color: rgba(0,245,212,0.2);
         transform: translateY(-6px);
-        box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+        box-shadow: 0 24px 60px rgba(0,0,0,0.5), var(--accent-glow);
     }
+
+    .blog-card:hover::after { opacity: 1; }
 
     .blog-card .blog-thumb {
         overflow: hidden;
@@ -908,13 +1221,17 @@ Online Shopping — Premium Electronics
     .blog-card .blog-cat {
         font-size: 11px;
         font-weight: 700;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
         color: var(--accent);
         text-decoration: none;
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'JetBrains Mono', monospace;
         display: inline-block;
         margin-bottom: 10px;
+        padding: 3px 10px;
+        background: var(--accent-dim);
+        border-radius: 100px;
+        border: 1px solid rgba(0,245,212,0.2);
     }
 
     .blog-card h4 a {
@@ -925,7 +1242,8 @@ Online Shopping — Premium Electronics
         display: block;
         margin-bottom: 12px;
         transition: color 0.2s;
-        font-family: 'Clash Display', sans-serif;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
     }
 
     .blog-card h4 a:hover { color: var(--accent); }
@@ -945,11 +1263,11 @@ Online Shopping — Premium Electronics
         font-size: 13px;
         font-weight: 600;
         text-decoration: none;
-        font-family: 'DM Sans', sans-serif;
-        transition: gap 0.2s;
+        font-family: 'Space Grotesk', sans-serif;
+        transition: all 0.2s;
     }
 
-    .btn-text:hover { gap: 10px; color: var(--accent); }
+    .btn-text:hover { gap: 12px; color: var(--accent); text-shadow: 0 0 10px rgba(0,245,212,0.4); }
 
     /* ── RESPONSIVE ───────────────────────────── */
     @media (max-width: 768px) {
@@ -960,11 +1278,196 @@ Online Shopping — Premium Electronics
         .hero-side-card { margin-top: 16px; }
     }
 
+    /* ── PROMO BANNER ─────────────────────────────── */
+.promo-banner-section {
+    background: linear-gradient(135deg, #03050f 0%, #06091f 50%, #03050f 100%);
+    padding: 18px 0;
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.promo-banner-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 60% 100% at 20% 50%, rgba(0,245,212,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 100% at 80% 50%, rgba(168,85,247,0.08) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.promo-banner-section::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(0,245,212,0.04) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(0,245,212,0.04) 1px, transparent 1px);
+    background-size: 30px 30px;
+    pointer-events: none;
+    opacity: 0.4;
+}
+
+.promo-banner-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+/* Left */
+.promo-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.promo-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid rgba(0,245,212,0.25);
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.08em;
+    width: fit-content;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.promo-title {
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1;
+    margin: 4px 0 0;
+    font-family: 'Outfit', sans-serif;
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.promo-title span {
+    font-size: 14px;
+    font-weight: 700;
+    display: block;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    -webkit-text-fill-color: var(--muted);
+}
+
+.promo-sub {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Center */
+.promo-center {
+    text-align: center;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    padding: 0 32px;
+}
+
+.promo-percent {
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1;
+    font-family: 'Outfit', sans-serif;
+    background: var(--gradient-accent2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.promo-percent span {
+    font-size: 13px;
+    font-weight: 800;
+    display: block;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    -webkit-text-fill-color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.promo-center p {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 4px 0 0;
+    font-weight: 600;
+}
+
+/* Right */
+.promo-right {
+    text-align: center;
+}
+
+.promo-badge {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--white);
+    margin: 0 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.btn-promo {
+    display: inline-block;
+    background: var(--gradient-accent);
+    color: #03050f;
+    font-weight: 800;
+    font-size: 15px;
+    padding: 10px 28px;
+    border-radius: 50px;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(0,245,212,0.35);
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.btn-promo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,245,212,0.5);
+    color: #03050f;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .promo-banner-inner {
+        justify-content: center;
+        text-align: center;
+    }
+    .promo-center {
+        border: none;
+        padding: 12px 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        width: 100%;
+    }
+    .promo-left {
+        align-items: center;
+    }
+}
+
     /* scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--primary); }
-    ::-webkit-scrollbar-thumb { background: var(--surface); border-radius: 100px; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(0,245,212,0.4), rgba(168,85,247,0.4)); border-radius: 100px; }
 </style>
+
+
 
 {{-- ── HERO ──────────────────────────────────────── --}}
 <section class="hero-area">
@@ -1030,6 +1533,36 @@ Online Shopping — Premium Electronics
         </div>
     </div>
 </section>
+
+{{-- ── PROMO BANNER ─────────────────────────────── --}}
+<div class="promo-banner-section">
+    <div class="container">
+        <div class="promo-banner-inner">
+
+            {{-- Left: Sale Text --}}
+            <div class="promo-left">
+                <div class="promo-tag">🔥 Limited Time</div>
+                <h2 class="promo-title">5.5 <span>Mega Sale</span></h2>
+                <p class="promo-sub">Get The Big One!</p>
+            </div>
+
+            {{-- Center: Discount --}}
+            <div class="promo-center">
+                <div class="promo-percent">12% <span>SAVINGS</span></div>
+                <p>On Prepaid Orders</p>
+            </div>
+
+            {{-- Right: CTA --}}
+            <div class="promo-right">
+                <p class="promo-badge">Sale is LIVE!</p>
+                <a href="product-grids.html" class="btn-promo">
+                    Shop Now <span>→</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 {{-- ── TRUST BAR ─────────────────────────────────── --}}
 <div class="trust-bar">
@@ -1148,7 +1681,7 @@ Online Shopping — Premium Electronics
                             <span>4.0 (32)</span>
                         </div>
                         <div class="price-row">
-                            <div class="price">{{ $product->selling_price }}</div>
+                            <div class="price">৳{{ $product->selling_price }}</div>
                             <button class="wishlist-btn"><i class="lni lni-heart"></i></button>
                         </div>
                     </div>

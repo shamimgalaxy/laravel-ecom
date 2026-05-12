@@ -182,10 +182,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/chat/send', [AdminChatController::class, 'sendMessage'])->name('admin.chat.send');
     Route::get('/admin/chat/customer/{id}', [AdminChatController::class, 'getCustomer']);
 
-    Route::get('/home/about-us', [AboutUsController::class, 'index'])->name('home.about-us');
-    Route::get('/home/contact-us', [ContactUsController::class, 'index'])->name('home.contact-us');
+   
 
 });
+
+ Route::get('/home/about-us', [AboutUsController::class, 'index'])->name('home.about-us');
+    Route::get('/home/contact-us', [ContactUsController::class, 'index'])->name('home.contact-us');
 
 // ─────────────────────────────────────────────
 // SSLCommerz
