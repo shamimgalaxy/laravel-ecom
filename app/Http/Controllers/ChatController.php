@@ -81,7 +81,7 @@ public function sendMessage(Request $request)
         $message->message   = $request->message;
         $message->save();
 
-       // ↓ CHANGED: removed ->toOthers()
+       
 broadcast(new ChatMessageSent(
     message:     $message->message,
     sender:      'admin',

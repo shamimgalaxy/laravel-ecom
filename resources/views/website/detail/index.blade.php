@@ -85,39 +85,55 @@
 <h3 class="price">${{ $product->selling_price }}<span>${{ $product->regular_price }}</span></h3>
 <p class="info-text">{{ $product->short_description  }}</p> 
 
-<form action="{{ route('add-to-cart', $product->id) }}" method="POST">
-    @csrf
-
-    <div class="row">
+<div class="row">
     <div class="col-12">
-    <div class="form-group quantity">
-
-    <input type="number" name="qty"  value="1" min="1" max="{{ $product->quantity }}" id="quantity" class="form-control">
-
+        <div class="form-group quantity">
+            <input type="number" value="1" min="1" max="{{ $product->quantity }}" id="quantity" class="form-control">
+        </div>
     </div>
-    </div>
-    </div>
-    <div class="bottom-content">
+</div>
+<div class="bottom-content">
     <div class="row align-items-end">
-    <div class="col-lg-4 col-md-4 col-12">
-    <div class="button cart-button">
-    <button type="submit" class="btn" style="width: 100%;">Add to Cart </button>
+        <div class="col-lg-3 col-md-3 col-6">
+            <div class="button cart-button">
+                <button type="button"
+                        class="btn"
+                        style="width: 100%;"
+                        id="addToCartBtn"
+                        data-fly-cart
+                        data-add-url="{{ route('add-to-cart', $product->id) }}"
+                        data-product-img="#xzoom-default"
+                        data-qty="1">
+                    <i class="lni lni-cart"></i> Add to Cart
+                </button>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-6">
+            <div class="button cart-button">
+                <a href="{{ route('checkout') }}" class="btn" style="width: 100%;">
+                    <i class="lni lni-credit-cards"></i> Checkout
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-6">
+            <div class="wish-button">
+                <button type="button" class="btn" style="width: 100%;"><i class="lni lni-reload"></i> Compare</button>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-6">
+            <div class="wish-button">
+                <button type="button" class="btn" style="width: 100%;"><i class="lni lni-heart"></i> Wishlist</button>
+            </div>
+        </div>
     </div>
-    </div>
-    <div class="col-lg-4 col-md-4 col-12">
-    <div class="wish-button">
-    <button type="button" class="btn"><i class="lni lni-reload"></i> Compare</button>
-    </div>
-    </div>
-    <div class="col-lg-4 col-md-4 col-12">
-    <div class="wish-button">
-    <button type="button" class="btn"><i class="lni lni-heart"></i> To Wishlist</button>
-    </div>
-    </div>
-    </div>
-    </div>
+</div>
 
-  </form>
+{{-- Sync qty input with button --}}
+<script>
+    document.getElementById('quantity').addEventListener('change', function () {
+        document.getElementById('addToCartBtn').dataset.qty = this.value;
+    });
+</script>
 
 </div>
 </div>

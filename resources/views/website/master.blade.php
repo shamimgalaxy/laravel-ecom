@@ -7,6 +7,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}" />
 <title>MY Shop - @yield('title')</title>
 @include('website.includes.style')
+@stack('styles')
 </head>
 
 <body>
@@ -19,10 +20,10 @@
 
 @include('website.includes.script')
 
-{{-- Pusher JS (after jQuery, before chat widget) --}}
+@stack('scripts')
+
 <script src="https://js.pusher.com/8.4/pusher.min.js"></script>
 
-{{-- Live Chat Widget --}}
 @include('partials.chat-widget')
 
 </body>

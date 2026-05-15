@@ -2,6 +2,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="shortcut icon" type="image/x-icon" href="{{ asset('website/assets/images/favicon.svg')}}" />
 
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="stylesheet" href="{{ asset('website/assets/css/LineIcons.3.0.css')}}" 
+
 {{-- Core CSS --}}
 <link rel="stylesheet" href="{{ asset('website/assets/css/bootstrap.min.css')}}" />
 <link rel="stylesheet" href="{{ asset('website/assets/css/LineIcons.3.0.css')}}" />

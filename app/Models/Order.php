@@ -18,20 +18,24 @@ class Order extends Model
     ];
 
    
-    public static function newOrder(Request $request, $customerId)
+  public static function newOrder(Request $request, $customerId)
 {
+    $cart     = session()->get('cart', []);
+    $subtotal = array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart));
+    $tax      = ($subtotal * 15) / 100;
+    $shipping = 100;
+
     $order = new self();
-    
     $order->customer_id      = $customerId;
     $order->order_date       = date('Y-m-d');
     $order->order_timestamp  = date('Y-m-d H:i:s');
-    $order->order_total      = Session::get('order_total', 0);
-    $order->tax_total        = Session::get('tax_total', 0);
-    $order->shipping_total   = Session::get('shipping_total', 0);
+    $order->order_total      = $subtotal + $tax + $shipping;
+    $order->tax_total        = $tax;
+    $order->shipping_total   = $shipping;
     $order->delivery_address = $request->delivery_address;
-    $order->payment_type     = $request->payment_type ?? 'Cash'; 
-    $order->order_status     =$request;
-    
+    $order->payment_type     = $request->payment_type ?? 'Cash';
+    $order->order_status     = 'Pending';
+
     $order->save();
 
     return $order;

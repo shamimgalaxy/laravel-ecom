@@ -2,33 +2,37 @@
     SCRIPT LOAD ORDER (critical):
     1. jQuery           — everything depends on this
     2. Bootstrap bundle — needs jQuery
-    3. tiny-slider      — standalone, no jQuery needed
+    3. tiny-slider      — standalone
     4. glightbox        — standalone
     5. xzoom            — needs jQuery
     6. main.js          — needs jQuery + plugins
-    7. Inline inits     — run after all above are loaded
+    7. header.js        — standalone, runs its own DOMContentLoaded
+    8. Inline inits     — run after all above are loaded
 --}}
 
-{{-- 1. jQuery (must be first) --}}
-<script src="{{ asset('website/assets/js/jquery-3.6.0.min2.js')}}"></script>
+{{-- 1. jQuery --}}
+<script src="{{ asset('website/assets/js/jquery-3.6.0.min2.js') }}"></script>
 
-{{-- 2. Bootstrap bundle (needs jQuery) --}}
-<script src="{{ asset('website/assets/js/bootstrap.bundle.min2.js')}}"></script>
-<script src="{{ asset('website/assets/js/bootstrap.min.js')}}"></script>
+{{-- 2. Bootstrap --}}
+<script src="{{ asset('website/assets/js/bootstrap.bundle.min2.js') }}"></script>
+<script src="{{ asset('website/assets/js/bootstrap.min.js') }}"></script>
 
 {{-- 3. Tiny Slider --}}
-<script src="{{ asset('website/assets/js/tiny-slider.js')}}"></script>
+<script src="{{ asset('website/assets/js/tiny-slider.js') }}"></script>
 
 {{-- 4. GLightbox --}}
-<script src="{{ asset('website/assets/js/glightbox.min.js')}}"></script>
+<script src="{{ asset('website/assets/js/glightbox.min.js') }}"></script>
 
-{{-- 5. xZoom (needs jQuery) --}}
-<script src="{{ asset('website/assets/js/xzoom.min2.js')}}"></script>
+{{-- 5. xZoom --}}
+<script src="{{ asset('website/assets/js/xzoom.min2.js') }}"></script>
 
 {{-- 6. Main JS --}}
-<script src="{{ asset('website/assets/js/main.js')}}"></script>
+<script src="{{ asset('website/assets/js/main.js') }}"></script>
 
-{{-- 7. Inline initializations --}}
+{{-- 7. Header JS --}}
+<script src="{{ asset('website/assets/js/header.js') }}"></script>
+
+{{-- 8. Inline initializations --}}
 <script>
 $(document).ready(function () {
 
@@ -42,7 +46,6 @@ $(document).ready(function () {
     }
 
     // ── Hero Slider ─────────────────────────────────────────
-    // Guard: only init if .hero-slider exists on this page
     if (document.querySelector('.hero-slider')) {
         tns({
             container: '.hero-slider',
@@ -62,7 +65,6 @@ $(document).ready(function () {
     }
 
     // ── Brands Logo Carousel ────────────────────────────────
-    // Guard: only init if .brands-logo-carousel exists on this page
     if (document.querySelector('.brands-logo-carousel')) {
         tns({
             container: '.brands-logo-carousel',
@@ -84,10 +86,9 @@ $(document).ready(function () {
 });
 </script>
 
-{{-- ── Countdown Timer ────────────────────────────────────── --}}
+{{-- ── Countdown Timer ─────────────────────────────────────── --}}
 <script>
 (function () {
-    // Guard: only run if countdown elements exist on this page
     var daysEl    = document.querySelector('#days');
     var hoursEl   = document.querySelector('#hours');
     var minutesEl = document.querySelector('#minutes');
@@ -95,11 +96,11 @@ $(document).ready(function () {
 
     if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
 
-    var finaleDate       = new Date("December 31, 2026 00:00:00").getTime();
+    var finaleDate        = new Date("December 31, 2026 00:00:00").getTime();
     var countdownInterval;
 
-    function pad2(n)  { return n <= 9  ? '0'  + n : '' + n; }
-    function pad3(n)  { return n <= 99 ? '0'  + pad2(n) : '' + n; }
+    function pad2(n) { return n <= 9  ? '0'  + n : '' + n; }
+    function pad3(n) { return n <= 99 ? '0'  + pad2(n) : '' + n; }
 
     function timer() {
         var now  = new Date().getTime();
@@ -108,8 +109,8 @@ $(document).ready(function () {
         if (diff < 0) {
             var alertEl  = document.querySelector('.alert');
             var timerBox = document.querySelector('.box-head');
-            if (alertEl)  alertEl.style.display  = 'block';
-            if (timerBox) timerBox.style.display  = 'none';
+            if (alertEl)  alertEl.style.display = 'block';
+            if (timerBox) timerBox.style.display = 'none';
             clearInterval(countdownInterval);
             return;
         }

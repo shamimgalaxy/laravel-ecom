@@ -8,7 +8,7 @@ use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Session;
-use ShoppingCart;
+
 
 class CheckoutController extends Controller
 {
@@ -23,11 +23,11 @@ class CheckoutController extends Controller
 public function newCashOrder(Request $request)
 {
     $request->validate([
-        'name'             => 'required|string|min:2|max:255',
-        'email'            => 'required|email:rfc,dns|max:255',
-        'mobile'           => 'required|string|regex:/^([0-9\s\-\+\(\)]*)$/|min:11',
-        'delivery_address' => 'required|string|min:10|max:500',
-    ]);
+    'name'             => 'required|string|min:2|max:255',
+    'email'            => 'required|email|max:255',
+    'mobile'           => 'required|string|regex:/^([0-9\s\-\+\(\)]*)$/|min:11',
+    'delivery_address' => 'required|string|min:10|max:500',
+]);
 
     try {
         $order = DB::transaction(function () use ($request) {
@@ -52,7 +52,7 @@ public function newCashOrder(Request $request)
             OrderDetail::newOrderDetail($order->id);
 
             // 3. Clear Cart
-            ShoppingCart::destroy();
+            session()->forget('cart');
 
             return $order;
         });
